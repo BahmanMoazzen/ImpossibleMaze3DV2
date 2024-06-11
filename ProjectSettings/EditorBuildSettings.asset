@@ -8,5 +8,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/BAHMANUnityAssets/LoadingScene.unity
     guid: 4981d5ec714934d4d8de368184bd4ce7
+  - enabled: 1
+    path: Assets/ImpossibleMaze3DV2/Scenes/TitleScreen.unity
+    guid: 95c9048d9f4bae047bdaa31a607dd209
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
