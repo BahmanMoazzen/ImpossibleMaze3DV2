@@ -10,7 +10,7 @@ public class MazeRotator : MonoBehaviour
     /// </summary>
     [SerializeField] MazeRotationLimit _maxRotation;
 
-    Vector3 _currentRotation ;
+    Vector3 _currentRotation;
     [SerializeField] float _rotationSpeed;
 
     private void Awake()
@@ -24,6 +24,15 @@ public class MazeRotator : MonoBehaviour
         _currentRotation += iRotation;
         _checkRotationBounds();
         transform.rotation = Quaternion.Euler(_currentRotation);
+    }
+    public void _SetRotationLimit(MazeRotationLimit iLimits)
+    {
+        _maxRotation = iLimits;
+    }
+    public void _SetupRotator(MazeRotationLimit iLimits, float iRotationSpeed)
+    {
+        _rotationSpeed = iRotationSpeed;
+        _maxRotation = iLimits;
     }
     void _checkRotationBounds()
     {
@@ -63,6 +72,11 @@ public struct RotationLimit
 {
     public float MinRotation;
     public float MaxRotation;
+    public RotationLimit(float iMinRotation, float iMaxRotation)
+    {
+        MinRotation = iMinRotation;
+        MaxRotation = iMaxRotation;
+    }
 }
 [Serializable]
 public struct MazeRotationLimit
@@ -71,7 +85,12 @@ public struct MazeRotationLimit
     public RotationLimit Xlimit;
     public RotationLimit Ylimit;
     public RotationLimit Zlimit;
-
+    public MazeRotationLimit(RotationLimit iXLimit, RotationLimit iYLimit, RotationLimit iZLimit)
+    {
+        Xlimit = iXLimit;
+        Ylimit = iYLimit;
+        Zlimit = iZLimit;
+    }
 
 
 }
