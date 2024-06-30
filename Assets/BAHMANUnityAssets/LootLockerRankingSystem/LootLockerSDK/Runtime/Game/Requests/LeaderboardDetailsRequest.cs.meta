@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: a4de149873a2eb041b1634fcac495a93
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 233183
+  packageName: LootLocker SDK
+  packageVersion: 2.1.5
+  assetPath: Assets/BAHMANUnityAssets/LootLockerRankingSystem/LootLockerSDK/Runtime/Game/Requests/LeaderboardDetailsRequest.cs
+  uploadId: 656555

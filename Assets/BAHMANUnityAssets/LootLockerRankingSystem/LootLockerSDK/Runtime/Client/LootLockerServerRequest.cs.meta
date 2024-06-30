@@ -13,6 +13,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 233183
   packageName: LootLocker SDK
-  packageVersion: 2.1.3
-  assetPath: Assets/LootLockerSDK/Runtime/Client/LootLockerServerRequest.cs
-  uploadId: 643170
+  packageVersion: 2.1.5
+  assetPath: Assets/BAHMANUnityAssets/LootLockerRankingSystem/LootLockerSDK/Runtime/Client/LootLockerServerRequest.cs
+  uploadId: 656555

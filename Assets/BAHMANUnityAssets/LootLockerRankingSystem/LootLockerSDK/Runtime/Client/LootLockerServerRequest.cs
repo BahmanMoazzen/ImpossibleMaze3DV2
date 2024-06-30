@@ -92,6 +92,15 @@ namespace LootLocker
 
     public class LootLockerErrorData
     {
+        public LootLockerErrorData(int httpStatusCode, string errorMessage)
+        {
+            code = $"HTTP{httpStatusCode}";
+            doc_url = $"https://developer.mozilla.org/docs/Web/HTTP/Status/{httpStatusCode}";
+            message = errorMessage;
+        }
+
+        public LootLockerErrorData() { }
+
         /// <summary>
         /// A descriptive code identifying the error.
         /// </summary>
@@ -116,6 +125,57 @@ namespace LootLocker
         /// If the request was not a success this property will hold any error messages
         /// </summary>
         public string message { get; set; }
+
+        /// <summary>
+        /// An easy way of debugging LootLockerErrorData class, example: Debug.Log(onComplete.errorData);
+        /// </summary>
+        /// <returns>string used to debug errors</returns>
+        public override string ToString()
+        {
+            // Empty error, make sure we print something
+            if (string.IsNullOrEmpty(message) && string.IsNullOrEmpty(trace_id) && string.IsNullOrEmpty(request_id))
+            {
+                return $"An unexpected LootLocker error without error data occurred. Please try again later.\n If the issue persists, please contact LootLocker support.";
+            }
+
+            //Print the most important info first
+            string prettyError = $"LootLocker Error: \"{message}\"";
+
+            // Look for intermittent, non user errors
+            if (!string.IsNullOrEmpty(code) && code.StartsWith("HTTP5"))
+            {
+                prettyError +=
+                    $"\nTry again later. If the issue persists, please contact LootLocker support and provide the following error details:\n trace ID - \"{trace_id}\",\n request ID - \"{request_id}\",\n message - \"{message}\".";
+                if (!string.IsNullOrEmpty(doc_url))
+                {
+                    prettyError += $"\nFor more information, see {doc_url} (error code was \"{code}\").";
+                }
+            }
+            // Print user errors
+            else
+            {
+                prettyError +=
+                    $"\nThere was a problem with your request. The error message provides information on the problem and will help you fix it.";
+                if (!string.IsNullOrEmpty(doc_url))
+                {
+                    prettyError += $"\nFor more information, see {doc_url} (error code was \"{code}\").";
+                }
+
+                prettyError +=
+                    $"\nIf you are unable to fix the issue, contact LootLocker support and provide the following error details:";
+                if (!string.IsNullOrEmpty(trace_id))
+                {
+                    prettyError += $"\n     trace ID - \"{trace_id}\"";
+                }
+                if (!string.IsNullOrEmpty(request_id))
+                {
+                    prettyError += $"\n     request ID - \"{request_id}\"";
+                }
+
+                prettyError += $"\n     message - \"{message}\".";
+            }
+            return prettyError;
+        }
     }
 
     /// <summary>
@@ -172,11 +232,11 @@ namespace LootLocker
         {
             if (serverResponse == null)
             {
-                return LootLockerResponseFactory.Error<T>("Unknown error, please check your internet connection.");
+                return LootLockerResponseFactory.ClientError<T>("Unknown error, please check your internet connection.");
             }
-            else if (serverResponse.errorData != null && !string.IsNullOrEmpty(serverResponse.errorData.code))
+            else if (serverResponse.errorData != null)
             {
-                return new T() { success = false, errorData = serverResponse.errorData, statusCode = serverResponse.statusCode };
+                return new T() { success = false, errorData = serverResponse.errorData, statusCode = serverResponse.statusCode, text = serverResponse.text };
             }
 
             var response = LootLockerJson.DeserializeObject<T>(serverResponse.text, options ?? LootLockerJsonSettings.Default) ?? new T();
@@ -212,17 +272,42 @@ namespace LootLocker
     public class LootLockerResponseFactory
     {
         /// <summary>
-        /// Construct an error response to send to the client.
+        /// Construct an error response from a network request to send to the client.
         /// </summary>
-        public static T Error<T>(string errorMessage, int statusCode = 0) where T : LootLockerResponse, new()
+        public static T NetworkError<T>(string errorMessage, int httpStatusCode) where T : LootLockerResponse, new()
         {
             return new T()
             {
                 success = false,
                 text = "{ \"message\": \"" + errorMessage + "\"}",
-                statusCode = statusCode,
-                errorData = new LootLockerErrorData() { message = errorMessage }
+                statusCode = httpStatusCode,
+                errorData = new LootLockerErrorData(httpStatusCode, errorMessage)
             };
+        }
+
+        /// <summary>
+        /// Construct an error response from a client side error to send to the client.
+        /// </summary>
+        public static T ClientError<T>(string errorMessage) where T : LootLockerResponse, new()
+        {
+            return new T()
+            {
+                success = false,
+                text = "{ \"message\": \"" + errorMessage + "\"}",
+                statusCode = 0,
+                errorData = new LootLockerErrorData
+                {
+                    message = errorMessage,
+                }
+            };
+        }
+
+        /// <summary>
+        /// Construct an error response for token expiration.
+        /// </summary>
+        public static T TokenExpiredError<T>() where T : LootLockerResponse, new()
+        {
+            return NetworkError<T>("Token Expired", 401);
         }
 
         /// <summary>
@@ -230,7 +315,7 @@ namespace LootLocker
         /// </summary>
         public static T SDKNotInitializedError<T>() where T : LootLockerResponse, new()
         {
-            return Error<T>("The LootLocker SDK has not been initialized, please start a session to call this method");
+            return ClientError<T>("The LootLocker SDK has not been initialized, please start a session to call this method");
         }
 
         /// <summary>
@@ -238,7 +323,7 @@ namespace LootLocker
         /// </summary>
         public static T InputUnserializableError<T>() where T : LootLockerResponse, new()
         {
-            return Error<T>("Method parameter could not be serialized");
+            return ClientError<T>("Method parameter could not be serialized");
         }
 
         /// <summary>
@@ -246,7 +331,7 @@ namespace LootLocker
         /// </summary>
         public static T RateLimitExceeded<T>(string method, int secondsLeftOfRateLimit) where T : LootLockerResponse, new()
         {
-            return Error<T>($"Your request to {method} was not sent. You are sending too many requests and are being rate limited for {secondsLeftOfRateLimit} seconds");
+            return ClientError<T>($"Your request to {method} was not sent. You are sending too many requests and are being rate limited for {secondsLeftOfRateLimit} seconds");
         }
     }
 
@@ -486,7 +571,7 @@ namespace LootLocker
 #if UNITY_EDITOR
                 LootLockerLogger.GetForLogLevel(LootLockerLogger.LogLevel.Error)("LootLocker domain key must be set in settings");
 #endif
-                onComplete?.Invoke(LootLockerResponseFactory.Error<LootLockerResponse>("LootLocker domain key must be set in settings"));
+                onComplete?.Invoke(LootLockerResponseFactory.ClientError<LootLockerResponse>("LootLocker domain key must be set in settings"));
 
                 return;
             }
@@ -515,7 +600,7 @@ namespace LootLocker
 #if UNITY_EDITOR
                     LootLockerLogger.GetForLogLevel(LootLockerLogger.LogLevel.Error)("File content is empty, not allowed.");
 #endif
-                onComplete?.Invoke(LootLockerResponseFactory.Error<LootLockerResponse>("File content is empty, not allowed."));
+                onComplete?.Invoke(LootLockerResponseFactory.ClientError<LootLockerResponse>("File content is empty, not allowed."));
                 return;
             }
             if (useAuthToken)

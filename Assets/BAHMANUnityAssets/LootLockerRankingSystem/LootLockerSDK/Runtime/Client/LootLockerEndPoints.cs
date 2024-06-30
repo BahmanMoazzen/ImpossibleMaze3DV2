@@ -23,6 +23,12 @@ namespace LootLocker
         public static EndPointClass appleGameCenterSessionRequest = new EndPointClass("session/apple/game-center", LootLockerHTTPMethod.POST);
         public static EndPointClass googleSessionRequest = new EndPointClass("session/google", LootLockerHTTPMethod.POST);
 
+        // Connected Accounts
+        [Header("Connected Accounts")]
+        public static EndPointClass listConnectedAccounts = new EndPointClass("v1/connected-accounts", LootLockerHTTPMethod.GET);
+        public static EndPointClass disconnectAccount = new EndPointClass("v1/connected-accounts/{0}", LootLockerHTTPMethod.DELETE);
+        public static EndPointClass connectProviderToAccount = new EndPointClass("v1/connected-accounts/{0}", LootLockerHTTPMethod.PUT);
+
         // Remote Sessions
         [Header("Remote Sessions")]
         public static EndPointClass leaseRemoteSession = new EndPointClass("session/remote/lease", LootLockerHTTPMethod.POST);
@@ -200,6 +206,10 @@ namespace LootLocker
         public static EndPointClass redeemAppleAppStorePurchase = new EndPointClass("store/apple/redeem", LootLockerHTTPMethod.POST);
         public static EndPointClass redeemGooglePlayStorePurchase = new EndPointClass("store/google/redeem", LootLockerHTTPMethod.POST);
 
+        public static EndPointClass beginSteamPurchaseRedemption = new EndPointClass("store/steam/redeem/begin", LootLockerHTTPMethod.POST);
+        public static EndPointClass querySteamPurchaseRedemptionStatus = new EndPointClass("store/steam/redeem/query", LootLockerHTTPMethod.POST);
+        public static EndPointClass finalizeSteamPurchaseRedemption = new EndPointClass("store/steam/redeem/finalise", LootLockerHTTPMethod.POST);
+
         // EventTrigger
         [Header("EventTrigger")]
         public static EndPointClass triggeringAnEvent = new EndPointClass("v1/player/trigger", LootLockerHTTPMethod.POST);
@@ -225,6 +235,9 @@ namespace LootLocker
         public static EndPointClass getAllMemberRanks = new EndPointClass("leaderboards/member/{0}?count={1}", LootLockerHTTPMethod.GET);
         public static EndPointClass getScoreList = new EndPointClass("leaderboards/{0}/list?count={1}", LootLockerHTTPMethod.GET);
         public static EndPointClass submitScore = new EndPointClass("leaderboards/{0}/submit", LootLockerHTTPMethod.POST);
+        public static EndPointClass getLeaderboardData = new EndPointClass("leaderboards/{0}/info", LootLockerHTTPMethod.GET);
+        public static EndPointClass listLeaderboardArchive = new EndPointClass("leaderboards/{0}/archive/list", LootLockerHTTPMethod.GET);
+        public static EndPointClass getLeaderboardArchive = new EndPointClass("leaderboards/archive/read?key={0}&", LootLockerHTTPMethod.GET);
         
         // Progressions
         [Header("Progressions")]

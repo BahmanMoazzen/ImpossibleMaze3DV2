@@ -32,7 +32,7 @@ namespace LootLocker
             }
         }
 
-        public static void Reset()
+        public static void ResetInstance()
         {
             if (_instance == null) return;
 #if UNITY_EDITOR
@@ -47,7 +47,7 @@ namespace LootLocker
         [InitializeOnEnterPlayMode]
         static void OnEnterPlaymodeInEditor(EnterPlayModeOptions options)
         {
-            Reset();
+            ResetInstance();
         }
 #endif
 
@@ -98,7 +98,7 @@ namespace LootLocker
                     if (!webRequest.isDone && timedOut)
                     {
                         LootLockerLogger.GetForLogLevel(LootLockerLogger.LogLevel.Warning)("Exceeded maxTimeOut waiting for a response from " + request.httpMethod + " " + url);
-                        OnServerResponse?.Invoke(LootLockerResponseFactory.Error<LootLockerResponse>(request.endpoint + " Timed out.", 408));
+                        OnServerResponse?.Invoke(LootLockerResponseFactory.ClientError<LootLockerResponse>(request.endpoint + " timed out."));
                         yield break;
                     }
 
@@ -131,93 +131,21 @@ namespace LootLocker
                         text = webRequest.downloadHandler.text
                     };
 
-                    LootLockerErrorData errorData =
-                        LootLockerJson.DeserializeObject<LootLockerErrorData>(webRequest.downloadHandler.text);
-                    if (ErrorIsPreErrorCodes(errorData))
+                    response.errorData = LootLockerJson.DeserializeObject<LootLockerErrorData>(webRequest.downloadHandler.text);
+
+                    // Error data was not parseable, populate with what we know
+                    if (response.errorData == null)
                     {
-                        errorData = ExpandErrorInformation(webRequest.responseCode, webRequest.downloadHandler.text);
+                        response.errorData = new LootLockerErrorData((int)webRequest.responseCode, webRequest.downloadHandler.text);
                     }
 
-                    response.errorData = errorData;
-                    LootLockerLogger.GetForLogLevel(LootLockerLogger.LogLevel.Error)(response.errorData.message +
-                        (!string.IsNullOrEmpty(response.errorData.doc_url) ? " -- " + response.errorData.doc_url : ""));
+                    LootLockerLogger.GetForLogLevel(LootLockerLogger.LogLevel.Error)(response.errorData.ToString());
                     OnServerResponse?.Invoke(response);
-
                 }
             }
         }
 
 #region Private Methods
-
-        private static LootLockerErrorData ExpandErrorInformation(long statusCode, string responseBody)
-        {
-            var errorData = new LootLockerErrorData();
-            switch (statusCode)
-            {
-                case 400:
-                    errorData.message = "Bad Request -- Your request has an error.";
-                    errorData.code = "bad_request";
-                    break;
-                case 401:
-                    errorData.message = "Unauthorized -- Your session_token is invalid.";
-                    errorData.code = "unauthorized";
-                    break;
-                case 402:
-                    errorData.message = "Payment Required -- Payment failed. Insufficient funds, etc.";
-                    errorData.code = "payment_required";
-                    break;
-                case 403:
-                    errorData.message = "Forbidden -- You do not have access to this resource.";
-                    errorData.code = "forbidden";
-                    break;
-                case 404:
-                    errorData.message = "Not Found -- The requested resource could not be found.";
-                    errorData.code = "not_found";
-                    break;
-                case 405:
-                    errorData.message =
-                        "Method Not Allowed -- The selected http method is invalid for this resource.";
-                    errorData.code = "method_not_allowed";
-                    break;
-                case 406:
-                    errorData.message = "Not Acceptable -- Purchasing is disabled.";
-                    errorData.code = "not_acceptable";
-                    break;
-                case 409:
-                    errorData.message =
-                        "Conflict -- Your state is most likely not aligned with the servers.";
-                    errorData.code = "conflict";
-                    break;
-                case 429:
-                    errorData.message =
-                        "Too Many Requests -- You're being limited for sending too many requests too quickly.";
-                    errorData.code = "too_many_requests";
-                    break;
-                case 500:
-                    errorData.message =
-                        "Internal Server Error -- We had a problem with our server. Try again later.";
-                    errorData.code = "internal_server_error";
-                    break;
-                case 503:
-                    errorData.message =
-                        "Service Unavailable -- We're either offline for maintenance, or an error that should be solvable by calling again later was triggered.";
-                    errorData.code = "service_unavailable";
-                    break;
-                default:
-                    errorData.message = "Unknown error.";
-                    break;
-            }
-
-            errorData.message +=
-                " " + LootLockerObfuscator.ObfuscateJsonStringForLogging(responseBody);
-            return errorData;
-        }
-
-        private static bool ErrorIsPreErrorCodes(LootLockerErrorData errorData)
-        {
-            // Check if the error uses the "old" error style, not the "new" (https://docs.lootlocker.com/reference/error-codes)
-            return errorData == null || string.IsNullOrEmpty(errorData.code);
-        }
 
         private static bool ShouldRetryRequest(long statusCode, int timesRetried)
         {
@@ -280,7 +208,7 @@ namespace LootLocker
             { "Access-Control-Allow-Headers", "Accept, X-Access-Token, X-Application-Name, X-Request-Sent-Time" },
             { "Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS, HEAD" },
             { "Access-Control-Allow-Origin", "*" },
-            { "User-Instance-Identifier", System.Guid.NewGuid().ToString() }
+            { "LL-Instance-Identifier", System.Guid.NewGuid().ToString() }
         };
 
         private void RefreshTokenAndCompleteCall(LootLockerServerRequest cachedRequest, Action<LootLockerResponse> onComplete)
@@ -314,7 +242,7 @@ namespace LootLocker
                         return;
                     }
                     LootLockerLogger.GetForLogLevel(LootLockerLogger.LogLevel.Warning)($"Token has expired, please refresh it");
-                    onComplete?.Invoke(LootLockerResponseFactory.Error<LootLockerResponse>("Token Expired", 401));
+                    onComplete?.Invoke(LootLockerResponseFactory.TokenExpiredError<LootLockerResponse>());
                     return;
                 }
                 case Platforms.AppleSignIn:
@@ -328,7 +256,7 @@ namespace LootLocker
                         return;
                     }
                     LootLockerLogger.GetForLogLevel(LootLockerLogger.LogLevel.Warning)($"Token has expired, please refresh it");
-                    onComplete?.Invoke(LootLockerResponseFactory.Error<LootLockerResponse>("Token Expired", 401));
+                    onComplete?.Invoke(LootLockerResponseFactory.TokenExpiredError<LootLockerResponse>());
                     return;
                 }
                 case Platforms.Epic:
@@ -342,7 +270,7 @@ namespace LootLocker
                         return;
                     }
                     LootLockerLogger.GetForLogLevel(LootLockerLogger.LogLevel.Warning)($"Token has expired, please refresh it");
-                    onComplete?.Invoke(LootLockerResponseFactory.Error<LootLockerResponse>("Token Expired", 401));
+                    onComplete?.Invoke(LootLockerResponseFactory.TokenExpiredError<LootLockerResponse>());
                     return;
                 }
                 case Platforms.Google:
@@ -356,7 +284,7 @@ namespace LootLocker
                         return;
                     }
                     LootLockerLogger.GetForLogLevel(LootLockerLogger.LogLevel.Warning)($"Token has expired, please refresh it");
-                    onComplete?.Invoke(LootLockerResponseFactory.Error<LootLockerResponse>("Token Expired", 401));
+                    onComplete?.Invoke(LootLockerResponseFactory.TokenExpiredError<LootLockerResponse>());
                     return;
                 }
                 case Platforms.Remote:
@@ -370,14 +298,14 @@ namespace LootLocker
                         return;
                     }
                     LootLockerLogger.GetForLogLevel(LootLockerLogger.LogLevel.Warning)($"Token has expired, please refresh it");
-                    onComplete?.Invoke(LootLockerResponseFactory.Error<LootLockerResponse>("Token Expired", 401));
+                    onComplete?.Invoke(LootLockerResponseFactory.TokenExpiredError<LootLockerResponse>());
                     return;
                 }
                 case Platforms.NintendoSwitch:
                 case Platforms.Steam:
                 {
                     LootLockerLogger.GetForLogLevel(LootLockerLogger.LogLevel.Warning)($"Token has expired and token refresh is not supported for {CurrentPlatform.GetFriendlyString()}");
-                    onComplete?.Invoke(LootLockerResponseFactory.Error<LootLockerResponse>("Token Expired", 401));
+                    onComplete?.Invoke(LootLockerResponseFactory.TokenExpiredError<LootLockerResponse>());
                     return;
                 }
                 case Platforms.PlayStationNetwork:
@@ -394,8 +322,8 @@ namespace LootLocker
                 case Platforms.None:
                 default:
                 {
-                    LootLockerLogger.GetForLogLevel(LootLockerLogger.LogLevel.Error)($"Platform {CurrentPlatform.GetFriendlyString()} not supported");
-                    onComplete?.Invoke(LootLockerResponseFactory.Error<LootLockerResponse>($"Platform {CurrentPlatform.GetFriendlyString()} not supported", 401));
+                    LootLockerLogger.GetForLogLevel(LootLockerLogger.LogLevel.Error)($"Token refresh for platform {CurrentPlatform.GetFriendlyString()} not supported");
+                    onComplete?.Invoke(LootLockerResponseFactory.NetworkError<LootLockerResponse>($"Token refresh for platform {CurrentPlatform.GetFriendlyString()} not supported", 401));
                     return;
                 }
             }
@@ -412,14 +340,14 @@ namespace LootLocker
             if (!sessionRefreshResponse.success)
             {
                 LootLockerLogger.GetForLogLevel()("Session refresh failed");
-                onComplete?.Invoke(LootLockerResponseFactory.Error<LootLockerResponse>("Token Expired", 401));
+                onComplete?.Invoke(LootLockerResponseFactory.TokenExpiredError<LootLockerResponse>());
                 return;
             }
 
             if (cachedRequest.retryCount >= 4)
             {
                 LootLockerLogger.GetForLogLevel()("Session refresh failed");
-                onComplete?.Invoke(LootLockerResponseFactory.Error<LootLockerResponse>("Token Expired", 401));
+                onComplete?.Invoke(LootLockerResponseFactory.TokenExpiredError<LootLockerResponse>());
                 return;
             }
 
@@ -512,7 +440,7 @@ namespace LootLocker
 
             if (!string.IsNullOrEmpty(LootLockerConfig.current?.sdk_version))
             {
-                webRequest.SetRequestHeader("SDK-Version", LootLockerConfig.current.sdk_version);
+                webRequest.SetRequestHeader("LL-SDK-Version", LootLockerConfig.current.sdk_version);
             }
 
             if (request.extraHeaders != null)

@@ -112,6 +112,7 @@ namespace LootLocker.Requests
     public class LootLockerCommonAsset : LootLockerResponse
     {
         public int id { get; set; }
+        public string uuid { get; set; }
         public string name { get; set; }
         public bool active { get; set; }
         public bool purchasable { get; set; }
@@ -178,6 +179,7 @@ namespace LootLocker.Requests
     public class LootLockerContext
     {
         public int id { get; set; }
+        public string uuid { get; set; }
         public string name { get; set; }
         public string friendly_name { get; set; }
         public bool detachable { get; set; }
@@ -199,8 +201,8 @@ namespace LootLocker.Requests
     {
         public int id { get; set; }
         public int asset_id { get; set; }
-        public int asset_variation_id { get; set; }
-        public int asset_rental_option_id { get; set; }
+        public int? asset_variation_id { get; set; }
+        public int? asset_rental_option_id { get; set; }
         public string asset_ulid { get; set; }
         public string acquisition_source { get; set; }
         public string acquisition_date { get; set; }
