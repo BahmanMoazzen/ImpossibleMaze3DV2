@@ -8,16 +8,19 @@ public class MazeSpawner : MonoBehaviour
     /// the default rotation speed of the game
     /// </summary>
     const float DEFAULT_ROTATION_SPEED = 50f;
+    const float DEFAULT_MAZE_MASS = 1000f;
 
     /// <summary>
     /// singletone porpuses
     /// </summary>
     public static MazeSpawner _Instance;
 
+    
+
     /// <summary>
-    /// the event to fire after the spawing is done. Returns MazeRotator
+    /// reference to the maze rotator to enable and disable it
     /// </summary>
-    public static event UnityAction<MazeRotator> OnLevelSpawned;
+    MazeRotator _mazeRotator;
 
     private void Awake()
     {
@@ -30,9 +33,9 @@ public class MazeSpawner : MonoBehaviour
     /// public method to be called from other codes to instantiate a level
     /// </summary>
     /// <param name="iMaze">the prefab of the level. all the components will be set up automatically</param>
-    public void _SpawnMaze(GameObject iMaze)
+    public void _SpawnMaze(GameObject iMaze,UnityAction<MazeRotator> iOnSpawnDone)
     {
-        StartCoroutine(startSpawn(iMaze));
+        StartCoroutine(startSpawn(iMaze,iOnSpawnDone));
 
     }
 
@@ -40,29 +43,67 @@ public class MazeSpawner : MonoBehaviour
     /// the routine to spawn the level and add components. It sould be called from SpawnMaze method.
     /// </summary>
     /// <returns>nothing</returns>
-    IEnumerator startSpawn(GameObject iMaze)
+    IEnumerator startSpawn(GameObject iMaze,UnityAction<MazeRotator> iOnSpawnDone)
     {
         yield return null;
+        /// creating empty object
         GameObject parentMaze = new GameObject();
+        /// rename it 
         parentMaze.name = "LevelMaze";
+        /// adding the maze mesh underneath the empty parent
         GameObject mazeSkleton =
         Instantiate(iMaze, parentMaze.transform);
+        /// adding mesh collider to the maze skletone
         mazeSkleton.AddComponent<MeshCollider>();
+        /// adding rigidbody
+        _addRigidBody(parentMaze);
+        /// adding rotator
+        _addMazeRotator(parentMaze);
+
+        yield return new WaitForEndOfFrame();
+        /// job done event
+        iOnSpawnDone?.Invoke(_mazeRotator);
+
+
+    }
+    /// <summary>
+    /// enabeling the rotator for game
+    /// </summary>
+    public void _EnableMazeRotator()
+    {
+        _mazeRotator.enabled = true;
+    }
+    /// <summary>
+    /// disabling the rotator for game
+    /// </summary>
+    public void _DisableMazeRotator()
+    {
+        _mazeRotator.enabled = false;
+    }
+
+    /// <summary>
+    /// adding a MazeRotator with difault parameters to the game object and disable it
+    /// </summary>
+    /// <param name="iObject">the game object to add MazeRotator</param>
+    void _addMazeRotator(GameObject iObject)
+    {
+        _mazeRotator = iObject.AddComponent<MazeRotator>();
+        _mazeRotator._SetupRotator(newLimit, DEFAULT_ROTATION_SPEED);
+        _DisableMazeRotator();
+    }
+
+    /// <summary>
+    /// adding a rigidbody with difault parameters to the game object
+    /// </summary>
+    /// <param name="iObject">the game object to add rigidbody</param>
+    void _addRigidBody(GameObject iObject)
+    {
         Rigidbody mazeBody =
-        parentMaze.AddComponent<Rigidbody>();
+        iObject.AddComponent<Rigidbody>();
         mazeBody.angularDrag = mazeBody.drag = 0;
         mazeBody.isKinematic = true;
-        mazeBody.mass = 1000;
+        mazeBody.mass = DEFAULT_MAZE_MASS;
         mazeBody.useGravity = false;
-
-        MazeRotator newMazeRotator = parentMaze.AddComponent<MazeRotator>();
-        newMazeRotator._SetupRotator(newLimit, DEFAULT_ROTATION_SPEED);
-        
-        yield return new WaitForEndOfFrame();
-
-        OnLevelSpawned?.Invoke(newMazeRotator);
-
-        
     }
 
     /// <summary>

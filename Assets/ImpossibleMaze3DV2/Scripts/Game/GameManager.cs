@@ -25,6 +25,9 @@ public class GameManager : MonoBehaviour
     /// </summary>
     [SerializeField] CameraManager _cameraManager;
 
+    [SerializeField] GameStatAbstract[] _gameStats;
+    int _currentGameStat=0;
+
     private void Awake()
     {
 
@@ -34,21 +37,36 @@ public class GameManager : MonoBehaviour
     }
     private void Start()
     {
-        MazeSpawner._Instance._SpawnMaze(_levelToLoad);
+        _gameStats[_currentGameStat]._Started();
+
+        MazeSpawner._Instance._SpawnMaze(_levelToLoad, MazeSpawner_OnLevelSpawned);
     }
-    private void OnDisable()
-    {
-        MazeSpawner.OnLevelSpawned -= MazeSpawner_OnLevelSpawned;
-    }
-    private void OnEnable()
-    {
-        MazeSpawner.OnLevelSpawned += MazeSpawner_OnLevelSpawned;
-    }
+    
 
     private void MazeSpawner_OnLevelSpawned(MazeRotator iMazeRotator)
     {
+        // setting up all the input controllers available
         foreach (var inp in _inputs)
             inp._Setup(iMazeRotator);
+
+        // targeting all cameras to the ball
         _cameraManager._SetupCameras(_ball.transform);
+
+
+    }
+
+    public void _ChangeStat(GameStats iNewStat)
+    {
+        _gameStats[_currentGameStat]._Ended();
+        _currentGameStat =((int)iNewStat);
+        _gameStats[_currentGameStat]._Started();
+    }
+
+    private void Update()
+    {
+        _gameStats[_currentGameStat]._Perform();
     }
 }
+
+
+public enum GameStats { LoadScene,SelectBall,StartGame,WinGame,LooseGame }
