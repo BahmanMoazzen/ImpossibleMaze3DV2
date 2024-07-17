@@ -37,9 +37,9 @@ public class GameManager : MonoBehaviour
     }
     private void Start()
     {
-        _gameStats[_currentGameStat]._Started();
+        //_gameStats[_currentGameStat]._Started();
 
-        MazeSpawner._Instance._SpawnMaze(_levelToLoad, MazeSpawner_OnLevelSpawned);
+        MazeSpawner._Instance._SpawnMaze(Resources.Load<GameObject>("MazeSkeletone/LVL.001"), MazeSpawner_OnLevelSpawned);
     }
     
 
@@ -55,16 +55,16 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public void _ChangeStat(GameStats iNewStat)
-    {
-        _gameStats[_currentGameStat]._Ended();
-        _currentGameStat =((int)iNewStat);
-        _gameStats[_currentGameStat]._Started();
-    }
+    //public void _ChangeStat(GameStats iNewStat)
+    //{
+    //    _gameStats[_currentGameStat]._Ended();
+    //    _currentGameStat =((int)iNewStat);
+    //    _gameStats[_currentGameStat]._Started();
+    //}
 
     private void Update()
     {
-        _gameStats[_currentGameStat]._Perform();
+        //_gameStats[_currentGameStat]._Perform();
     }
 }
 

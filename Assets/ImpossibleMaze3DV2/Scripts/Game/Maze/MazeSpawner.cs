@@ -64,7 +64,6 @@ public class MazeSpawner : MonoBehaviour
         /// job done event
         iOnSpawnDone?.Invoke(_mazeRotator);
 
-
     }
     /// <summary>
     /// enabeling the rotator for game
