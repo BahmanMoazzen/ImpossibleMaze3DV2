@@ -20,7 +20,7 @@ public class GenericTypeLeaderboard : MonoBehaviour
     * leaderboardKey can be the same between stage and live /development mode on/off.
     * So if you use the key instead of the ID, you don't need to change any code when switching development_mode.
     */
-    string leaderboardKey = "PM_EASY";
+    string leaderboardKey = "genericLeaderboard";
     // int leaderboardID = 4705;
 
     string memberID;
@@ -31,7 +31,7 @@ public class GenericTypeLeaderboard : MonoBehaviour
         /* 
          * Override settings to use the Example game setup
          */
-        //LootLockerSettingsOverrider.OverrideSettings();
+        LootLockerSettingsOverrider.OverrideSettings();
         StartGuestSession();
     }
 

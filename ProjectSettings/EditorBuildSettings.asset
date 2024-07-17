@@ -11,5 +11,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/ImpossibleMaze3DV2/Scenes/TitleScreen.unity
     guid: 95c9048d9f4bae047bdaa31a607dd209
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 7d99c3af3c37ef2458e7c645552a7248, type: 2}
   m_UseUCBPForAssetBundles: 0

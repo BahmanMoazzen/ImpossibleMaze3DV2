@@ -1,5 +1,6 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -69,9 +70,60 @@ namespace LootLocker.Admin
             }
             m_CustomSettings.ApplyModifiedProperties();
         }
+ 
+        static void HorizontalLine(Color color)
+        {
+            // create your style
+            var horizontalLine = new GUIStyle
+            {
+                normal =
+                {
+                    background = EditorGUIUtility.whiteTexture
+                },
+                margin = new RectOffset(0, 0, 4, 4),
+                fixedHeight = 1
+            };
+
+            var c = GUI.color;
+            GUI.color = color;
+            GUILayout.Box(GUIContent.none, horizontalLine);
+            GUI.color = c;
+        }
 
         private void DrawGameSettings()
         {
+            EditorGUILayout.Space(); EditorGUILayout.Space();
+            HorizontalLine(Color.gray);
+            var warningHeader = new GUIContent("DEPRECATION WARNING"); 
+            var warningHeaderStyle = new GUIStyle
+            {
+                alignment = TextAnchor.UpperCenter,
+                fontSize = 18,
+                normal =
+                {
+                    textColor = Color.red
+                }
+            };
+            EditorGUILayout.LabelField(warningHeader, warningHeaderStyle);
+            EditorGUILayout.Space();
+            var versionDeprecatedWarningContent = new GUIContent
+            {
+                text = LootLockerConfig.htmlVersionDeprecatedWarningText
+            };
+            var versionDeprecatedWarningContentStyle = new GUIStyle
+            {
+                richText = true,
+                wordWrap = true,
+                normal =
+                {
+                    textColor = Color.white
+                }
+            };
+            EditorGUILayout.LabelField(versionDeprecatedWarningContent, versionDeprecatedWarningContentStyle);
+            EditorGUILayout.Space();
+            HorizontalLine(Color.gray);
+            EditorGUILayout.Space(); EditorGUILayout.Space(); EditorGUILayout.Space(); EditorGUILayout.Space();
+
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(m_CustomSettings.FindProperty("apiKey"));
             if (EditorGUI.EndChangeCheck())
@@ -104,6 +156,13 @@ namespace LootLocker.Admin
             }
             EditorGUILayout.Space();
 
+            if (!IsSemverString(m_CustomSettings.FindProperty("game_version").stringValue))
+            {
+                EditorGUILayout.HelpBox(
+                    "Game version needs to follow a numeric Semantic Versioning pattern: X.Y.Z.B with the sections denoting MAJOR.MINOR.PATCH.BUILD and the last two being optional. Read more at https://docs.lootlocker.com/the-basics/core-concepts/glossary#game-version",
+                    MessageType.Warning, false);
+            }
+
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(m_CustomSettings.FindProperty("currentDebugLevel"));
 
@@ -121,6 +180,12 @@ namespace LootLocker.Admin
                 gameSettings.allowTokenRefresh = m_CustomSettings.FindProperty("allowTokenRefresh").boolValue; 
             }
             EditorGUILayout.Space();
+        }
+
+        private static bool IsSemverString(string str)
+        {
+            return Regex.IsMatch(str,
+                @"^(0|[1-9]\d*)\.(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?$");
         }
 
         [SettingsProvider]

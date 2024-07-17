@@ -6,6 +6,12 @@ using System.Text;
 using LootLocker.LootLockerEnums;
 using System.Linq;
 using System.Security.Cryptography;
+#if LOOTLOCKER_USE_NEWTONSOFTJSON
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+#else
+using LLlibs.ZeroDepJson;
+#endif
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -131,9 +137,9 @@ namespace LootLocker.Requests
         /// <summary>
         /// Convert a steam ticket so LootLocker can read it. You can read more on how to setup Steam with LootLocker here; https://docs.lootlocker.com/how-to/authentication/steam
         /// </summary>
-        /// <param name="ticket"></param>
-        /// <param name="ticketSize"></param>
-        /// <returns>A converted SteamSessionTicket as a string for use with StartSteamSession.</returns>
+        /// <param name="ticket">The Steam session ticket received from Steam Authentication</param>
+        /// <param name="ticketSize">The size of the Steam session ticket received from Steam Authentication</param>
+        /// <returns>A converted SteamSessionTicket as a string for use with VerifyPlayer.</returns>
         public static string SteamSessionTicket(ref byte[] ticket, uint ticketSize)
         {
             Array.Resize(ref ticket, (int)ticketSize);
@@ -295,7 +301,7 @@ namespace LootLocker.Requests
 
             if (identifier.Length == 0)
             {
-                onComplete?.Invoke(LootLockerResponseFactory.Error<LootLockerGuestSessionResponse>("identifier cannot be empty"));
+                onComplete?.Invoke(LootLockerResponseFactory.ClientError<LootLockerGuestSessionResponse>("Identifier cannot be empty when calling StartGuestSession (if you want an identifier to be generated for you, please use StartGuestSession(Action<LootLockerGuestSessionResponse> onComplete)"));
                 return;
             }
             CurrentPlatform.Set(Platforms.Guest);
@@ -319,6 +325,33 @@ namespace LootLocker.Requests
 
         /// <summary>
         /// Start a steam session. You can read more on how to setup Steam with LootLocker here; https://docs.lootlocker.com/how-to/authentication/steam
+        /// </summary>
+        /// <param name="steamId64">Steam ID as a string</param>
+        /// <param name="ticket">The Steam session ticket received from Steam Authentication</param>
+        /// <param name="ticketSize">The size of the Steam session ticket received from Steam Authentication</param>
+        /// <param name="onComplete">onComplete Action for handling the response of type LootLockerSessionResponse</param>
+        public static void VerifyPlayerAndStartSteamSession(string steamId64, ref byte[] ticket, uint ticketSize, Action<LootLockerSessionResponse> onComplete)
+        {
+            VerifySteamID(SteamSessionTicket(ref ticket, ticketSize), (LootLockerVerifyResponse verifyResponse) =>
+            {
+                if (!verifyResponse.success)
+                {
+                    onComplete?.Invoke(new LootLockerSessionResponse
+                    {
+                        success = verifyResponse.success,
+                        statusCode = verifyResponse.statusCode,
+                        errorData = verifyResponse.errorData,
+                        text = verifyResponse.text
+                    });
+                    return;
+                }
+                StartSteamSession(steamId64, onComplete);
+            });
+        }
+
+        /// <summary>
+        /// Start a steam session. You can read more on how to setup Steam with LootLocker here; https://docs.lootlocker.com/how-to/authentication/steam
+        /// Note: Steam requires that you verify the player using the VerifyPlayer method before starting a session
         /// </summary>
         /// <param name="steamId64">Steam ID ass a string</param>
         /// <param name="onComplete">onComplete Action for handling the response of type LootLockerSessionResponse</param>
@@ -802,6 +835,105 @@ namespace LootLocker.Requests
         }
         #endregion
 
+        #region Connected Accounts
+        /// <summary>
+        /// List identity providers (like Apple, Google, etc.) that are connected to the currently logged in account
+        /// </summary>
+        /// <param name="onComplete">onComplete Action for handling the response</param>
+        public static void ListConnectedAccounts(Action<LootLockerListConnectedAccountsResponse> onComplete)
+        {
+            if (!CheckInitialized())
+            {
+                onComplete?.Invoke(LootLockerResponseFactory.SDKNotInitializedError<LootLockerListConnectedAccountsResponse>());
+                return;
+            }
+
+            LootLockerServerRequest.CallAPI(LootLockerEndPoints.listConnectedAccounts.endPoint, LootLockerEndPoints.listConnectedAccounts.httpMethod, null, (response) => { LootLockerResponse.Deserialize(onComplete, response); });
+        }
+
+        /// <summary>
+        /// Disconnect account from the currently logged in account
+        ///
+        /// Use this to disconnect an account (like a Google or Apple account) that can be used to start sessions for this LootLocker account so that it is no longer allowed to do that
+        /// </summary>
+        /// <param name="accountToDisconnect">What account to disconnect from this LootLocker Account</param>
+        /// <param name="onComplete">onComplete Action for handling the response</param>
+        public static void DisconnectAccount(LootLockerAccountProvider accountToDisconnect, Action<LootLockerResponse> onComplete)
+        {
+            if (!CheckInitialized())
+            {
+                onComplete?.Invoke(LootLockerResponseFactory.SDKNotInitializedError<LootLockerResponse>());
+                return;
+            }
+
+            string endpoint = string.Format(LootLockerEndPoints.disconnectAccount.endPoint, accountToDisconnect);
+
+            LootLockerServerRequest.CallAPI(endpoint, LootLockerEndPoints.disconnectAccount.httpMethod, null, (response) => { LootLockerResponse.Deserialize(onComplete, response); });
+        }
+
+        /// <summary>
+        /// Connect a Google Account to the currently logged in LootLocker account allowing that google account to start sessions for this player
+        /// </summary>
+        /// <param name="idToken">The Id Token from google sign in</param>
+        /// <param name="onComplete">onComplete Action for handling the response</param>
+        public static void ConnectGoogleAccount(string idToken, Action<LootLockerResponse> onComplete)
+        {
+            if (!CheckInitialized())
+            {
+                onComplete?.Invoke(LootLockerResponseFactory.SDKNotInitializedError<LootLockerResponse>());
+                return;
+            }
+
+            string endpoint = string.Format(LootLockerEndPoints.connectProviderToAccount.endPoint, "google");
+
+            string data = LootLockerJson.SerializeObject(new LootLockerConnectGoogleProviderToAccountRequest{id_token = idToken });
+
+            LootLockerServerRequest.CallAPI(endpoint, LootLockerEndPoints.connectProviderToAccount.httpMethod, data, (response) => { LootLockerResponse.Deserialize(onComplete, response); });
+        }
+
+        /// <summary>
+        /// Connect a Google Account (with a Google Platform specified) to the currently logged in LootLocker account allowing that google account to start sessions for this player 
+        /// </summary>
+        /// <param name="idToken">The Id Token from google sign in</param>
+        /// <param name="platform">Google OAuth2 ClientID platform</param>
+        /// <param name="onComplete">onComplete Action for handling the response</param>
+        public static void ConnectGoogleAccount(string idToken, GoogleAccountProviderPlatform platform, Action<LootLockerResponse> onComplete)
+        {
+            if (!CheckInitialized())
+            {
+                onComplete?.Invoke(LootLockerResponseFactory.SDKNotInitializedError<LootLockerResponse>());
+                return;
+            }
+
+            string endpoint = string.Format(LootLockerEndPoints.connectProviderToAccount.endPoint, "google");
+
+            string data = LootLockerJson.SerializeObject(new LootLockerConnectGoogleProviderToAccountWithPlatformRequest() { id_token = idToken, platform = platform });
+
+            LootLockerServerRequest.CallAPI(endpoint, LootLockerEndPoints.connectProviderToAccount.httpMethod, data, (response) => { LootLockerResponse.Deserialize(onComplete, response); });
+        }
+
+        /// <summary>
+        /// Connect an Apple Account (authorized by Rest Sign In) to the currently logged in LootLocker account allowing that google account to start sessions for this player
+        /// </summary>
+        /// <param name="authorizationCode">Authorization code, provided by apple during Sign In</param>
+        /// <param name="onComplete">onComplete Action for handling the response</param>
+        public static void ConnectAppleAccountByRestSignIn(string authorizationCode, Action<LootLockerResponse> onComplete)
+        {
+            if (!CheckInitialized())
+            {
+                onComplete?.Invoke(LootLockerResponseFactory.SDKNotInitializedError<LootLockerResponse>());
+                return;
+            }
+
+            string endpoint = string.Format(LootLockerEndPoints.connectProviderToAccount.endPoint, "apple-rest");
+
+            string data = LootLockerJson.SerializeObject(new LootLockerConnectAppleRestProviderToAccountRequest() { authorization_code = authorizationCode });
+
+            LootLockerServerRequest.CallAPI(endpoint, LootLockerEndPoints.connectProviderToAccount.httpMethod, data, (response) => { LootLockerResponse.Deserialize(onComplete, response); });
+        }
+
+        #endregion
+
         #region Remote Sessions
 
         /// <summary>
@@ -1082,14 +1214,14 @@ namespace LootLocker.Requests
             string existingSessionToken = PlayerPrefs.GetString("LootLockerWhiteLabelSessionToken", "");
             if (string.IsNullOrEmpty(existingSessionToken))
             {
-                onComplete(LootLockerResponseFactory.Error<LootLockerSessionResponse>("no session token found"));
+                onComplete(LootLockerResponseFactory.ClientError<LootLockerSessionResponse>("No White Label Session Token found"));
                 return;
             }
 
             string existingSessionEmail = PlayerPrefs.GetString("LootLockerWhiteLabelSessionEmail", "");
             if (string.IsNullOrEmpty(existingSessionEmail))
             {
-                onComplete(LootLockerResponseFactory.Error<LootLockerSessionResponse>("no session email found"));
+                onComplete(LootLockerResponseFactory.ClientError<LootLockerSessionResponse>("No White Label Session Email found"));
                 return;
             }
 
@@ -1587,12 +1719,12 @@ namespace LootLocker.Requests
             {
                 if (name.ToLower().Contains("player"))
                 {
-                    onComplete?.Invoke(LootLockerResponseFactory.Error<PlayerNameResponse>("Setting the Player name to 'Player' is not allowed"));
+                    onComplete?.Invoke(LootLockerResponseFactory.ClientError<PlayerNameResponse>("Setting the Player name to 'Player' is not allowed"));
                     return;
 
                 } else if (name.ToLower().Contains(PlayerPrefs.GetString("LootLockerGuestPlayerID").ToLower()))
                 {
-                    onComplete?.Invoke(LootLockerResponseFactory.Error<PlayerNameResponse>("Setting the Player name to the Identifier is not allowed"));
+                    onComplete?.Invoke(LootLockerResponseFactory.ClientError<PlayerNameResponse>("Setting the Player name to the Identifier is not allowed"));
                     return;
                 }
             }
@@ -4193,6 +4325,7 @@ namespace LootLocker.Requests
         /// <param name="assetID">The ID of the asset to purchase</param>
         /// <param name="variationID">The variation ID of the asset to purchase</param>
         /// <param name="onComplete">onComplete Action for handling the response of type LootLockerPurchaseResponse</param>
+        [Obsolete("This purchasing system has been replaced with our new IAP system and will be removed at a later stage. Read more here: https://docs.lootlocker.com/content/in-app-purchases")]
         public static void NormalPurchaseCall(int assetID, int variationID, Action<LootLockerPurchaseResponse> onComplete)
         {
             if (!CheckInitialized())
@@ -4213,6 +4346,7 @@ namespace LootLocker.Requests
         /// <param name="variationID">The variation ID of the asset to purchase</param>
         /// <param name="rentalOptionID">The rental option ID of the asset to purchase</param>
         /// <param name="onComplete">onComplete Action for handling the response of type LootLockerPurchaseResponse</param>
+        [Obsolete("This purchasing system has been replaced with our new IAP system and will be removed at a later stage. Read more here: https://docs.lootlocker.com/content/in-app-purchases")]
         public static void RentalPurchaseCall(int assetID, int variationID, int rentalOptionID, Action<LootLockerPurchaseResponse> onComplete)
         {
             if (!CheckInitialized())
@@ -4229,6 +4363,7 @@ namespace LootLocker.Requests
         /// </summary>
         /// <param name="receipt_data">Receipt that is received when a purchase goes through with apple</param>
         /// <param name="onComplete">onComplete Action for handling the response of type LootLockerPurchaseResponse</param>
+        [Obsolete("This purchasing system has been replaced with our new IAP system and will be removed at a later stage. Read more here: https://docs.lootlocker.com/content/in-app-purchases")]
         public static void IosPurchaseVerification(string receipt_data, Action<LootLockerPurchaseResponse> onComplete)
         {
             if (!CheckInitialized())
@@ -4246,6 +4381,7 @@ namespace LootLocker.Requests
         /// <param name="purchase_token">The token that is received when a purchase has been made</param>
         /// <param name="asset_id">The ID of the asset to purchase</param>
         /// <param name="onComplete">onComplete Action for handling the response of type LootLockerPurchaseResponse</param>
+        [Obsolete("This purchasing system has been replaced with our new IAP system and will be removed at a later stage. Read more here: https://docs.lootlocker.com/content/in-app-purchases")]
         public static void AndroidPurchaseVerification(string purchase_token, int asset_id, Action<LootLockerPurchaseResponse> onComplete)
         {
             if (!CheckInitialized())
@@ -4295,7 +4431,7 @@ namespace LootLocker.Requests
         /// <summary>
         /// Activate a rental asset. This will grant the asset to the player and start the rental timer on the server.
         /// </summary>
-        /// <param name="assetId">The asset instance ID of the asset to activate</param>
+        /// <param name="assetInstanceID">The asset instance ID of the asset to activate</param>
         /// <param name="onComplete">onComplete Action for handling the response of type LootLockerActivateARentalAssetResponse</param>
         public static void ActivateRentalAsset(int assetInstanceID, Action<LootLockerActivateRentalAssetResponse> onComplete)
         {
@@ -4307,6 +4443,25 @@ namespace LootLocker.Requests
             LootLockerGetRequest data = new LootLockerGetRequest();
             data.getRequests.Add(assetInstanceID.ToString());
             LootLockerAPIManager.ActivateRentalAsset(data, onComplete);
+        }
+
+        /// <summary>
+        /// Purchase one catalog item using a specified wallet
+        /// </summary>
+        /// <param name="walletID">The id of the wallet to use for the purchase</param>
+        /// <param name="itemID">The id of the item that you want to purchase</param>
+        /// <param name="quantity">The amount that you want to purchase the item </param>
+        /// <param name="onComplete">onComplete Action for handling the response</param>
+        public static void LootLockerPurchaseSingleCatalogItem(string walletID, string itemID, int quantity, Action<LootLockerPurchaseCatalogItemResponse> onComplete)
+        {
+            LootLockerCatalogItemAndQuantityPair item = new LootLockerCatalogItemAndQuantityPair();
+
+            item.catalog_listing_id = itemID;
+            item.quantity = quantity;
+
+            LootLockerCatalogItemAndQuantityPair[] items = { item };
+
+            LootLockerPurchaseCatalogItems(walletID, items, onComplete);
         }
 
         /// <summary>
@@ -4423,7 +4578,216 @@ namespace LootLocker.Requests
             LootLockerServerRequest.CallAPI(LootLockerEndPoints.redeemGooglePlayStorePurchase.endPoint, LootLockerEndPoints.redeemGooglePlayStorePurchase.httpMethod, body, onComplete: (serverResponse) => { LootLockerResponse.Deserialize(onComplete, serverResponse); });
         }
 
-        #endregion
+        /// <summary>
+        /// Begin a Steam purchase with the given settings that when finalized will redeem the specified catalog item
+        /// 
+        /// Steam in-app purchases need to be configured for this to work
+        /// Steam in-app purchases works slightly different from other platforms, you begin a purchase with this call which initiates it in Steams backend
+        /// While your app is waiting for the user to finalize that purchase you can use QuerySteamPurchaseRedemptionStatus to get the status, when that tells you that the purchase is Approved you can finalize the purchase using FinalizeSteamPurchaseRedemption
+        /// </summary>
+        /// <param name="steamId">Id of the Steam User that is making the purchase</param>
+        /// <param name="currency">The currency to use for the purchase</param>
+        /// <param name="language">The language to use for the purchase</param>
+        /// <param name="catalogItemId">The LootLocker Catalog Item Id for the item you wish to purchase</param>
+        /// <param name="onComplete">onComplete Action for handling the response</param>
+        public static void BeginSteamPurchaseRedemption(string steamId, string currency, string language, string catalogItemId, Action<LootLockerBeginSteamPurchaseRedemptionResponse> onComplete)
+        {
+            if (!CheckInitialized())
+            {
+                onComplete?.Invoke(LootLockerResponseFactory.SDKNotInitializedError<LootLockerBeginSteamPurchaseRedemptionResponse>());
+                return;
+            }
+            var body = LootLockerJson.SerializeObject(new LootLockerBeginSteamPurchaseRedemptionRequest()
+            {
+                steam_id = steamId,
+                currency = currency,
+                language = language,
+                catalog_item_id = catalogItemId
+            });
+
+            LootLockerServerRequest.CallAPI(LootLockerEndPoints.beginSteamPurchaseRedemption.endPoint, LootLockerEndPoints.beginSteamPurchaseRedemption.httpMethod, body, onComplete:
+                (serverResponse) =>
+                {
+                    var parsedResponse = LootLockerResponse.Deserialize<LootLockerBeginSteamPurchaseRedemptionResponse>(serverResponse);
+                    if (!parsedResponse.success)
+                    {
+                        onComplete?.Invoke(parsedResponse);
+                        return;
+                    }
+
+#if LOOTLOCKER_USE_NEWTONSOFTJSON
+                    JObject jsonObject;
+                    try
+                    {
+                        jsonObject = JObject.Parse(serverResponse.text);
+                    }
+                    catch (JsonReaderException)
+                    {
+                        onComplete?.Invoke(parsedResponse);
+                        return;
+                    }
+                    if (jsonObject != null && jsonObject.TryGetValue("success", StringComparison.OrdinalIgnoreCase, out var successObj))
+                    {
+                        if (successObj.ToObject(typeof(bool)) is bool isSuccess)
+                        {
+                            parsedResponse.isSuccess = isSuccess;
+                        }
+                    }
+#else
+                    Dictionary<string, object> jsonObject = null;
+                    try
+                    {
+                        jsonObject = Json.Deserialize(serverResponse.text) as Dictionary<string, object>;
+                    }
+                    catch (JsonException)
+                    {
+                        onComplete?.Invoke(parsedResponse);
+                        return;
+                    }
+                    if (jsonObject != null && jsonObject.TryGetValue("success", out var successObj))
+                    {
+                        if (successObj is bool isSuccess)
+                        {
+                            parsedResponse.isSuccess = isSuccess;
+                        }
+                    }
+#endif
+                    onComplete?.Invoke(parsedResponse);
+                });
+        }
+
+        /// <summary>
+        /// Begin a Steam purchase with the given settings that when finalized will redeem the specified catalog item for the specified class
+        /// 
+        /// Steam in-app purchases need to be configured for this to work
+        /// Steam in-app purchases works slightly different from other platforms, you begin a purchase with this call which initiates it in Steams backend
+        /// While your app is waiting for the user to finalize that purchase you can use QuerySteamPurchaseRedemptionStatus to get the status, when that tells you that the purchase is Approved you can finalize the purchase using FinalizeSteamPurchaseRedemption
+        /// </summary>
+        /// <param name="classId">Id of the class to make the purchase for</param>
+        /// <param name="steamId">Id of the Steam User that is making the purchase</param>
+        /// <param name="currency">The currency to use for the purchase</param>
+        /// <param name="language">The language to use for the purchase</param>
+        /// <param name="catalogItemId">The LootLocker Catalog Item Id for the item you wish to purchase</param>
+        /// <param name="onComplete">onComplete Action for handling the response</param>
+        public static void BeginSteamPurchaseRedemptionForClass(int classId, string steamId, string currency, string language, string catalogItemId, Action<LootLockerBeginSteamPurchaseRedemptionResponse> onComplete)
+        {
+            if (!CheckInitialized())
+            {
+                onComplete?.Invoke(LootLockerResponseFactory.SDKNotInitializedError<LootLockerBeginSteamPurchaseRedemptionResponse>());
+                return;
+            }
+            var body = LootLockerJson.SerializeObject(new LootLockerBeginSteamPurchaseRedemptionForClassRequest()
+            {
+                class_id = classId,
+                steam_id = steamId,
+                currency = currency,
+                language = language,
+                catalog_item_id = catalogItemId
+            });
+
+            LootLockerServerRequest.CallAPI(LootLockerEndPoints.beginSteamPurchaseRedemption.endPoint, LootLockerEndPoints.beginSteamPurchaseRedemption.httpMethod, body, onComplete:
+                (serverResponse) =>
+                {
+                    var parsedResponse = LootLockerResponse.Deserialize<LootLockerBeginSteamPurchaseRedemptionResponse>(serverResponse);
+                    if (!parsedResponse.success)
+                    {
+                        onComplete?.Invoke(parsedResponse);
+                        return;
+                    }
+
+#if LOOTLOCKER_USE_NEWTONSOFTJSON
+                    JObject jsonObject;
+                    try
+                    {
+                        jsonObject = JObject.Parse(serverResponse.text);
+                    }
+                    catch (JsonReaderException)
+                    {
+                        onComplete?.Invoke(parsedResponse);
+                        return;
+                    }
+                    if (jsonObject != null && jsonObject.TryGetValue("success", StringComparison.OrdinalIgnoreCase, out var successObj))
+                    {
+                        if (successObj.ToObject(typeof(bool)) is bool isSuccess)
+                        {
+                            parsedResponse.isSuccess = isSuccess;
+                        }
+                    }
+#else
+                    Dictionary<string, object> jsonObject = null;
+                    try
+                    {
+                        jsonObject = Json.Deserialize(serverResponse.text) as Dictionary<string, object>;
+                    }
+                    catch (JsonException)
+                    {
+                        onComplete?.Invoke(parsedResponse);
+                        return;
+                    }
+                    if (jsonObject != null && jsonObject.TryGetValue("success", out var successObj))
+                    {
+                        if (successObj is bool isSuccess)
+                        {
+                            parsedResponse.isSuccess = isSuccess;
+                        }
+                    }
+#endif
+                    onComplete?.Invoke(parsedResponse);
+                });
+        }
+
+        [Obsolete("This function will be removed on a later date. Use QuerySteamPurchaseRedemption instead.")]
+        public static void BeginSteamPurchaseRedemption(string entitlementId, Action<LootLockerQuerySteamPurchaseRedemptionStatusResponse> onComplete)
+        {
+            QuerySteamPurchaseRedemption(entitlementId, onComplete);
+        }
+
+        /// <summary>
+        /// Check the Steam Purchase status for a given entitlement
+        /// 
+        /// Use this to check the status of an ongoing purchase to know when it's ready to finalize or has been aborted
+        /// or use this to get information for a completed purchase
+        /// </summary>
+        /// <param name="entitlementId">The id of the entitlement to check the status for</param>
+        /// <param name="onComplete">onComplete Action for handling the response</param>
+        public static void QuerySteamPurchaseRedemption(string entitlementId, Action<LootLockerQuerySteamPurchaseRedemptionStatusResponse> onComplete)
+        {
+            if (!CheckInitialized())
+            {
+                onComplete?.Invoke(LootLockerResponseFactory.SDKNotInitializedError<LootLockerQuerySteamPurchaseRedemptionStatusResponse>());
+                return;
+            }
+            var body = LootLockerJson.SerializeObject(new LootLockerQuerySteamPurchaseRedemptionStatusRequest()
+            {
+                entitlement_id = entitlementId
+            });
+
+            LootLockerServerRequest.CallAPI(LootLockerEndPoints.querySteamPurchaseRedemptionStatus.endPoint, LootLockerEndPoints.querySteamPurchaseRedemptionStatus.httpMethod, body, onComplete: (serverResponse) => { LootLockerResponse.Deserialize(onComplete, serverResponse); });
+        }
+
+        /// <summary>
+        /// Finalize a started Steam Purchase and subsequently redeem the catalog items that the entitlement refers to
+        /// 
+        /// The steam purchase needs to be in status Approved for this call to work
+        /// </summary>
+        /// <param name="entitlementId">The id of the entitlement to finalize the purchase for</param>
+        /// <param name="onComplete">onComplete Action for handling the response</param>
+        public static void FinalizeSteamPurchaseRedemption(string entitlementId, Action<LootLockerResponse> onComplete)
+        {
+            if (!CheckInitialized())
+            {
+                onComplete?.Invoke(LootLockerResponseFactory.SDKNotInitializedError<LootLockerResponse>());
+                return;
+            }
+            var body = LootLockerJson.SerializeObject(new LootLockerFinalizeSteamPurchaseRedemptionRequest()
+            {
+                entitlement_id = entitlementId
+            });
+
+            LootLockerServerRequest.CallAPI(LootLockerEndPoints.finalizeSteamPurchaseRedemption.endPoint, LootLockerEndPoints.finalizeSteamPurchaseRedemption.httpMethod, body, onComplete: (serverResponse) => { LootLockerResponse.Deserialize(onComplete, serverResponse); });
+        }
+
+#endregion
 
         #region Collectables
         /// <summary>
@@ -4754,6 +5118,92 @@ namespace LootLocker.Requests
                 request.metadata = metadata;
 
             LootLockerAPIManager.SubmitScore(request, leaderboardKey, onComplete);
+        }
+
+        /// <summary>
+        /// List the archived versions of a leaderboard, containing past rewards, ranks, etc.
+        /// </summary>
+        /// <param name="leaderboard_key">Key of the Leaderboard</param>
+        /// <param name="onComplete">onComplete Action for handling the response of type LootLockerLeaderboardArchiveResponse</param>
+        public static void ListLeaderboardArchive(string leaderboard_key, Action<LootLockerLeaderboardArchiveResponse> onComplete)
+        {
+            if (!CheckInitialized())
+            {
+                onComplete?.Invoke(LootLockerResponseFactory.SDKNotInitializedError<LootLockerLeaderboardArchiveResponse>());
+                return;
+            }
+
+            EndPointClass endPoint = LootLockerEndPoints.listLeaderboardArchive;
+            string tempEndpoint = string.Format(endPoint.endPoint, leaderboard_key);
+            LootLockerServerRequest.CallAPI(tempEndpoint, endPoint.httpMethod, null, ((serverResponse) => { LootLockerResponse.Deserialize(onComplete, serverResponse); }));
+        }
+
+        /// <summary>
+        /// Get the details of a Leaderboard Archive, containing past rewards, ranks, etc
+        /// </summary>
+        /// <param name="key"> Key of the json archive to read</param>
+        /// <param name="onComplete"><onComplete Action for handling the response of type LootLockerLeaderboardArchiveDetailsResponse</param>
+        public static void GetLeaderboardArchive(string key, Action<LootLockerLeaderboardArchiveDetailsResponse> onComplete)
+        {
+            GetLeaderboardArchive(key, -1, null, onComplete);
+        }
+
+        /// <summary>
+        /// Get the details of a Leaderboard Archive, containing past rewards, ranks, etc
+        /// </summary>
+        /// <param name="key"> Key of the json archive to read</param>
+        /// <param name="count"> Amount of entries to read </param>
+        /// <param name="onComplete"><onComplete Action for handling the response of type LootLockerLeaderboardArchiveDetailsResponse</param>
+        public static void GetLeaderboardArchive(string key, int count, Action<LootLockerLeaderboardArchiveDetailsResponse> onComplete)
+        {
+            GetLeaderboardArchive(key, count, null, onComplete);
+        }
+
+        /// <summary>
+        /// Get the details of a Leaderboard Archive, containing past rewards, ranks, etc
+        /// </summary>
+        /// <param name="key"> Key of the json archive to read</param>
+        /// <param name="count"> Amount of entries to read </param>
+        /// <param name="after"> Return after specified index </param>
+        /// <param name="onComplete"><onComplete Action for handling the response of type LootLockerLeaderboardArchiveDetailsResponse</param>
+        public static void GetLeaderboardArchive(string key, int count, string after, Action<LootLockerLeaderboardArchiveDetailsResponse> onComplete)
+        {
+            if (!CheckInitialized())
+            {
+                onComplete?.Invoke(LootLockerResponseFactory.SDKNotInitializedError<LootLockerLeaderboardArchiveDetailsResponse>());
+                return;
+            }
+            
+            EndPointClass endPoint = LootLockerEndPoints.getLeaderboardArchive;
+
+            string tempEndpoint = string.Format(endPoint.endPoint, key);
+
+            if (count > 0)
+                tempEndpoint += $"count={count}&";
+
+            if (!string.IsNullOrEmpty(after))
+                tempEndpoint += $"after={after}&";
+
+
+            LootLockerServerRequest.CallAPI(tempEndpoint, endPoint.httpMethod, null, ((serverResponse) => { LootLockerResponse.Deserialize(onComplete, serverResponse); }));        
+        }
+
+        /// <summary>
+        /// Get data on a leaderboard, check rewards and when it will reset and the last reset time.
+        /// </summary>
+        /// <param name="leaderboard_key">Key of the leaderboard to get data from</param>
+        /// <param name="onComplete">onComplete Action for handling the response of type LootLockerLeaderboardDetailResponse</param>
+        public static void GetLeaderboardData(string leaderboard_key, Action<LootLockerLeaderboardDetailResponse> onComplete)
+        {
+            if (!CheckInitialized())
+            {
+                onComplete?.Invoke(LootLockerResponseFactory.SDKNotInitializedError<LootLockerLeaderboardDetailResponse>());
+                return;
+            }
+
+            EndPointClass endPoint = LootLockerEndPoints.getLeaderboardData;
+            string formatedEndPoint = string.Format(endPoint.endPoint, leaderboard_key);
+            LootLockerServerRequest.CallAPI(formatedEndPoint, endPoint.httpMethod, null, (serverResponse) => { LootLockerResponse.Deserialize(onComplete, serverResponse); });
         }
 
         #endregion
