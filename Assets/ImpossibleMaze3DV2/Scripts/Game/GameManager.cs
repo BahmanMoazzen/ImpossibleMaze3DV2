@@ -26,22 +26,22 @@ public class GameManager : MonoBehaviour
     [SerializeField] CameraManager _cameraManager;
 
     [SerializeField] GameStatAbstract[] _gameStats;
-    int _currentGameStat=0;
+    int _currentGameStat = 0;
 
     private void Awake()
     {
 
         Time.timeScale = _gameSpeed;
 
-        
+
     }
     private void Start()
     {
         //_gameStats[_currentGameStat]._Started();
 
-        MazeSpawner._Instance._SpawnMaze(Resources.Load<GameObject>("MazeSkeletone/LVL.001"), MazeSpawner_OnLevelSpawned);
+        MazeSpawner._Instance._SpawnMaze(GameSettingInfo.Instance.CurrentLevelSkeletone, MazeSpawner_OnLevelSpawned);
     }
-    
+
 
     private void MazeSpawner_OnLevelSpawned(MazeRotator iMazeRotator)
     {
@@ -69,4 +69,4 @@ public class GameManager : MonoBehaviour
 }
 
 
-public enum GameStats { LoadScene,SelectBall,StartGame,WinGame,LooseGame }
+public enum GameStats { LoadScene, SelectBall, StartGame, WinGame, LooseGame }

@@ -87,8 +87,15 @@ public class GameSettingInfo : ScriptableObject
             PlayerPrefs.SetInt(GameLevelSaveTag, value);
         }
     }
-    
-    
+    public GameObject CurrentLevelSkeletone
+    {
+        get
+        {
+            return AllLevels[currentGameLevel].LevelSkeletone;
+        }
+    }
+    public LevelInfo[] AllLevels;
+    public BallInfo[] AllBalls;
 
 }
 

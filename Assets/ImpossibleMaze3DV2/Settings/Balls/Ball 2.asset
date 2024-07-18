@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65ed6f8ac97c63d4ea98f256327ea1ff, type: 3}
   m_Name: Ball 2
   m_EditorClassIdentifier: 
-  BallName: 
-  BallMesh: {fileID: 0}
+  BallName: Soccer Ball
+  BallMesh: {fileID: 2928151974261364390, guid: 40063430a4ab82c44976db258841f762, type: 3}

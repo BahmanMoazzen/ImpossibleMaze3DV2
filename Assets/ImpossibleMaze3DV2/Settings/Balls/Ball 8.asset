@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 65ed6f8ac97c63d4ea98f256327ea1ff, type: 3}
-  m_Name: Ball 6
+  m_Name: Ball 8
   m_EditorClassIdentifier: 
-  BallName: White Ball
-  BallMesh: {fileID: 3851137912357567406, guid: aafde6eaff5f0b649b240a56d3854bc2, type: 3}
+  BallName: Basket Ball
+  BallMesh: {fileID: 5254721250321596816, guid: 5aa0063e533d75844a40e4ca29880c23, type: 3}
