@@ -13,4 +13,8 @@ MonoBehaviour:
   m_Name: Ball 9
   m_EditorClassIdentifier: 
   BallName: Wooden Ball
-  BallMesh: {fileID: 6284543093895394392, guid: 95d46b988fad2364fb5aea16caf46f33, type: 3}
+  BallMesh:
+    m_AssetGUID: 95d46b988fad2364fb5aea16caf46f33
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0

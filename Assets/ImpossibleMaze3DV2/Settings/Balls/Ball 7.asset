@@ -13,4 +13,8 @@ MonoBehaviour:
   m_Name: Ball 7
   m_EditorClassIdentifier: 
   BallName: Black Ball
-  BallMesh: {fileID: 6556277413643821429, guid: 072cae5d742a38a4aa39f66668804a45, type: 3}
+  BallMesh:
+    m_AssetGUID: 072cae5d742a38a4aa39f66668804a45
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0

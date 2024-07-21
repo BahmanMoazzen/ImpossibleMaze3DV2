@@ -13,4 +13,8 @@ MonoBehaviour:
   m_Name: Ball 10
   m_EditorClassIdentifier: 
   BallName: Fabrik Ball
-  BallMesh: {fileID: 919132149155446097, guid: 2014c81806241634e99fb2b896e626d9, type: 3}
+  BallMesh:
+    m_AssetGUID: da69ec724aedc9a4cbf7e4b34b677948
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0

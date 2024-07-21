@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 468a46d0ae32c3544b7d98094e6448a9, type: 3}
   m_Name: AddressableAssetSettings
   m_EditorClassIdentifier: 
-  m_DefaultGroup: 1a381b7c79e3f0b44b68571c5ecc2ca5
+  m_DefaultGroup: 8ffeab5f4040614488151365ca309e4c
   m_currentHash:
     serializedVersion: 2
-    Hash: 00000000000000000000000000000000
+    Hash: 09228b22c3150d77cdd3133b9b61430f
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -45,7 +45,8 @@ MonoBehaviour:
   m_overridePlayerVersion: '[UnityEditor.PlayerSettings.bundleVersion]'
   m_GroupAssets:
   - {fileID: 11400000, guid: 681f18e26d695024db6b902d8d917e2e, type: 2}
-  - {fileID: 11400000, guid: 23977f16c4e1c7a4e8ca176be1858afd, type: 2}
+  - {fileID: 11400000, guid: 5fbca4c143334eb488e13a1460855a96, type: 2}
+  - {fileID: 11400000, guid: eb7f16d90df12494cbb297b4c418d748, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1
@@ -87,6 +88,8 @@ MonoBehaviour:
   m_LabelTable:
     m_LabelNames:
     - default
+    - Ball
+    - Level
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: a0a9c563ac98b214ca7118fe4a5035aa, type: 2}

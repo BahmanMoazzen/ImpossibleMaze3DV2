@@ -13,4 +13,8 @@ MonoBehaviour:
   m_Name: Ball 1
   m_EditorClassIdentifier: 
   BallName: Beach Ball
-  BallMesh: {fileID: 6307257536019899087, guid: 64a31f87e3168c14bb00c558adfeb392, type: 3}
+  BallMesh:
+    m_AssetGUID: 64a31f87e3168c14bb00c558adfeb392
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0

@@ -13,4 +13,8 @@ MonoBehaviour:
   m_Name: Ball 4
   m_EditorClassIdentifier: 
   BallName: Billiard Ball
-  BallMesh: {fileID: 2400046047861179448, guid: f346578e35cbb6b48a847c6c98b25ec9, type: 3}
+  BallMesh:
+    m_AssetGUID: f346578e35cbb6b48a847c6c98b25ec9
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0

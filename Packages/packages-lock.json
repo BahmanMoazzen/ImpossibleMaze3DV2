@@ -21,11 +21,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.addressables.android": {
-      "version": "1.0.2",
+      "version": "1.0.3",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.addressables": "1.21.17"
+        "com.unity.addressables": "1.21.20"
       },
       "url": "https://packages.unity.com"
     },

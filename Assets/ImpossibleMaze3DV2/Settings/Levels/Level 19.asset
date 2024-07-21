@@ -13,5 +13,9 @@ MonoBehaviour:
   m_Name: Level 19
   m_EditorClassIdentifier: 
   LevelName: Level 19
-  LevelSkeletone: {fileID: 7247466450882785233, guid: 67a137bb722e318478574609f47245e0, type: 3}
+  LevelSkeletone:
+    m_AssetGUID: 67a137bb722e318478574609f47245e0
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
   LevelTime: 90

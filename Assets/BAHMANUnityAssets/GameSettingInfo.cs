@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Events;
 [CreateAssetMenu(fileName = "NewSettings", order = 2, menuName = "BAHMAN Unity Assets/New Game Settings")]
 public class GameSettingInfo : ScriptableObject
@@ -87,11 +88,33 @@ public class GameSettingInfo : ScriptableObject
             PlayerPrefs.SetInt(GameLevelSaveTag, value);
         }
     }
-    public GameObject CurrentLevelSkeletone
+    const string BallSaveTag = "BallSaveTag";
+    [SerializeField] int currentBall;
+    public int CurrentBall
     {
         get
         {
-            return AllLevels[currentGameLevel].LevelSkeletone;
+            return PlayerPrefs.GetInt(BallSaveTag, currentBall);
+        }
+        set
+        {
+            PlayerPrefs.SetInt(BallSaveTag, value);
+        }
+    }
+    public LevelInfo CurrentLevelSkeletone
+    {
+        get
+        {
+
+            return AllLevels[currentGameLevel];
+        }
+    }
+    public BallInfo CurrentBallInfo
+    {
+        get
+        {
+
+            return AllBalls[currentGameLevel];
         }
     }
     public LevelInfo[] AllLevels;

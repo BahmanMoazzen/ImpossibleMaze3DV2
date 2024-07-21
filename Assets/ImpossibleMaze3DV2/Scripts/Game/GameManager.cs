@@ -39,7 +39,7 @@ public class GameManager : MonoBehaviour
     {
         //_gameStats[_currentGameStat]._Started();
 
-        MazeSpawner._Instance._SpawnMaze(GameSettingInfo.Instance.CurrentLevelSkeletone, MazeSpawner_OnLevelSpawned);
+        MazeSpawner._Instance._SpawnMaze(GameSettingInfo.Instance.CurrentLevelSkeletone.LevelSkeletone, MazeSpawner_OnLevelSpawned);
     }
 
 
@@ -50,7 +50,7 @@ public class GameManager : MonoBehaviour
             inp._Setup(iMazeRotator);
 
         // targeting all cameras to the ball
-        _cameraManager._SetupCameras(_ball.transform);
+        //_cameraManager._SetupCameras(_ball.transform);
 
 
     }

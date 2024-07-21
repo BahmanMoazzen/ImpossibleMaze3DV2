@@ -13,4 +13,8 @@ MonoBehaviour:
   m_Name: Ball 3
   m_EditorClassIdentifier: 
   BallName: Golf Ball
-  BallMesh: {fileID: 6530595240498824158, guid: cf799147fae6e12429c51d395811b177, type: 3}
+  BallMesh:
+    m_AssetGUID: cf799147fae6e12429c51d395811b177
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0

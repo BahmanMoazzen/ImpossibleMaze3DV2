@@ -1,6 +1,10 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+
 using UnityEngine.Events;
+using System;
 
 public class MazeSpawner : MonoBehaviour
 {
@@ -15,12 +19,16 @@ public class MazeSpawner : MonoBehaviour
     /// </summary>
     public static MazeSpawner _Instance;
 
-    
+
 
     /// <summary>
     /// reference to the maze rotator to enable and disable it
     /// </summary>
     MazeRotator _mazeRotator;
+
+    UnityAction<MazeRotator> _actionAfterDone;
+
+    AssetReferenceGameObject _mazeAssetReference;
 
     private void Awake()
     {
@@ -33,26 +41,28 @@ public class MazeSpawner : MonoBehaviour
     /// public method to be called from other codes to instantiate a level
     /// </summary>
     /// <param name="iMaze">the prefab of the level. all the components will be set up automatically</param>
-    public void _SpawnMaze(GameObject iMaze,UnityAction<MazeRotator> iOnSpawnDone)
+    public void _SpawnMaze(AssetReferenceGameObject iMaze, UnityAction<MazeRotator> iOnSpawnDone)
     {
-        StartCoroutine(startSpawn(iMaze,iOnSpawnDone));
+        _actionAfterDone = iOnSpawnDone;
+        _mazeAssetReference = iMaze;
+
+        _mazeAssetReference.LoadAssetAsync<GameObject>().Completed += MazeSpawner_Completed;
+        //StartCoroutine(startSpawn(iMaze,iOnSpawnDone));
 
     }
-
     /// <summary>
-    /// the routine to spawn the level and add components. It sould be called from SpawnMaze method.
+    /// calls after trying to load the addressable asset
     /// </summary>
-    /// <returns>nothing</returns>
-    IEnumerator startSpawn(GameObject iMaze,UnityAction<MazeRotator> iOnSpawnDone)
+    /// <param name="iAsyncResult">the result of the operation</param>
+    private void MazeSpawner_Completed(AsyncOperationHandle<GameObject> iAsyncResult)
     {
-        yield return null;
         /// creating empty object
         GameObject parentMaze = new GameObject();
         /// rename it 
         parentMaze.name = "LevelMaze";
         /// adding the maze mesh underneath the empty parent
         GameObject mazeSkleton =
-        Instantiate(iMaze, parentMaze.transform);
+        Instantiate(iAsyncResult.Result, parentMaze.transform);
         /// adding mesh collider to the maze skletone
         mazeSkleton.AddComponent<MeshCollider>();
         /// adding rigidbody
@@ -60,11 +70,49 @@ public class MazeSpawner : MonoBehaviour
         /// adding rotator
         _addMazeRotator(parentMaze);
 
-        yield return new WaitForEndOfFrame();
-        /// job done event
-        iOnSpawnDone?.Invoke(_mazeRotator);
 
+        /// job done event
+        _actionAfterDone?.Invoke(_mazeRotator);
     }
+
+    /// <summary>
+    /// the routine to spawn the level and add components. It sould be called from SpawnMaze method.
+    /// </summary>
+    /// <returns>nothing</returns>
+    //IEnumerator startSpawn(AssetReferenceGameObject iMaze,UnityAction<MazeRotator> iOnSpawnDone)
+    //{
+    //    yield return null;
+    //    /// creating empty object
+    //    GameObject parentMaze = new GameObject();
+    //    /// rename it 
+    //    parentMaze.name = "LevelMaze";
+
+    //    iMaze.LoadAssetAsync<GameObject>().Completed += (iAsyncresult) =>
+    //    {
+    //        if( iAsyncresult.Status == AsyncOperationStatus.Succeeded)
+    //        {
+    //            /// adding the maze mesh underneath the empty parent
+    //            GameObject mazeSkleton =
+    //            Instantiate(iAsyncresult.Result, parentMaze.transform);
+    //            /// adding mesh collider to the maze skletone
+    //            mazeSkleton.AddComponent<MeshCollider>();
+    //            /// adding rigidbody
+    //            _addRigidBody(parentMaze);
+    //            /// adding rotator
+    //            _addMazeRotator(parentMaze);
+
+
+    //            /// job done event
+    //            iOnSpawnDone?.Invoke(_mazeRotator);
+    //        }
+    //    }; 
+
+
+
+    //}
+
+
+
     /// <summary>
     /// enabeling the rotator for game
     /// </summary>
@@ -120,7 +168,11 @@ public class MazeSpawner : MonoBehaviour
         }
     }
 
-
+    private void OnDestroy()
+    {
+        /// releasing the maze asset
+        _mazeAssetReference.ReleaseAsset();
+    }
 
 
 }

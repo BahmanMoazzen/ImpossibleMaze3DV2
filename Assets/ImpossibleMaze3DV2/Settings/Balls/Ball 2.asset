@@ -13,4 +13,8 @@ MonoBehaviour:
   m_Name: Ball 2
   m_EditorClassIdentifier: 
   BallName: Soccer Ball
-  BallMesh: {fileID: 2928151974261364390, guid: 40063430a4ab82c44976db258841f762, type: 3}
+  BallMesh:
+    m_AssetGUID: 40063430a4ab82c44976db258841f762
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0

@@ -13,4 +13,8 @@ MonoBehaviour:
   m_Name: Ball 6
   m_EditorClassIdentifier: 
   BallName: White Ball
-  BallMesh: {fileID: 3851137912357567406, guid: aafde6eaff5f0b649b240a56d3854bc2, type: 3}
+  BallMesh:
+    m_AssetGUID: aafde6eaff5f0b649b240a56d3854bc2
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
