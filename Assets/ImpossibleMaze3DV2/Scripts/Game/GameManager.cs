@@ -13,13 +13,7 @@ public class GameManager : MonoBehaviour
     /// all the input handlers of the game
     /// </summary>
     [SerializeField] InputManagerAbstract[] _inputs;
-    /// <summary>
-    /// level to load by MazeSpawner
-    /// </summary>
-    [SerializeField] GameObject _levelToLoad;
-
-    [SerializeField] GameObject _ball;
-
+    
     /// <summary>
     /// the camera manager which manages the game camera
     /// </summary>

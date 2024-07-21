@@ -30,6 +30,8 @@ public class MazeSpawner : MonoBehaviour
 
     AssetReferenceGameObject _mazeAssetReference;
 
+    GameObject _parentMaze;
+
     private void Awake()
     {
         /// initializing the _Instance
@@ -50,6 +52,13 @@ public class MazeSpawner : MonoBehaviour
         //StartCoroutine(startSpawn(iMaze,iOnSpawnDone));
 
     }
+    public void _UnloadMaze()
+    {
+        Destroy(_parentMaze);
+        /// releasing the maze asset
+        _mazeAssetReference.ReleaseAsset();
+
+    }
     /// <summary>
     /// calls after trying to load the addressable asset
     /// </summary>
@@ -57,18 +66,18 @@ public class MazeSpawner : MonoBehaviour
     private void MazeSpawner_Completed(AsyncOperationHandle<GameObject> iAsyncResult)
     {
         /// creating empty object
-        GameObject parentMaze = new GameObject();
+        _parentMaze = new GameObject();
         /// rename it 
-        parentMaze.name = "LevelMaze";
+        _parentMaze.name = "LevelMaze";
         /// adding the maze mesh underneath the empty parent
         GameObject mazeSkleton =
-        Instantiate(iAsyncResult.Result, parentMaze.transform);
+        Instantiate(iAsyncResult.Result, _parentMaze.transform);
         /// adding mesh collider to the maze skletone
         mazeSkleton.AddComponent<MeshCollider>();
         /// adding rigidbody
-        _addRigidBody(parentMaze);
+        _addRigidBody();
         /// adding rotator
-        _addMazeRotator(parentMaze);
+        _addMazeRotator();
 
 
         /// job done event
@@ -132,9 +141,9 @@ public class MazeSpawner : MonoBehaviour
     /// adding a MazeRotator with difault parameters to the game object and disable it
     /// </summary>
     /// <param name="iObject">the game object to add MazeRotator</param>
-    void _addMazeRotator(GameObject iObject)
+    void _addMazeRotator()
     {
-        _mazeRotator = iObject.AddComponent<MazeRotator>();
+        _mazeRotator = _parentMaze.AddComponent<MazeRotator>();
         _mazeRotator._SetupRotator(newLimit, DEFAULT_ROTATION_SPEED);
         _DisableMazeRotator();
     }
@@ -143,10 +152,10 @@ public class MazeSpawner : MonoBehaviour
     /// adding a rigidbody with difault parameters to the game object
     /// </summary>
     /// <param name="iObject">the game object to add rigidbody</param>
-    void _addRigidBody(GameObject iObject)
+    void _addRigidBody()
     {
         Rigidbody mazeBody =
-        iObject.AddComponent<Rigidbody>();
+        _parentMaze.AddComponent<Rigidbody>();
         mazeBody.angularDrag = mazeBody.drag = 0;
         mazeBody.isKinematic = true;
         mazeBody.mass = DEFAULT_MAZE_MASS;
@@ -170,8 +179,7 @@ public class MazeSpawner : MonoBehaviour
 
     private void OnDestroy()
     {
-        /// releasing the maze asset
-        _mazeAssetReference.ReleaseAsset();
+        _UnloadMaze();
     }
 
 
