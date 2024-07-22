@@ -19,8 +19,6 @@ public class MazeSpawner : MonoBehaviour
     /// </summary>
     public static MazeSpawner _Instance;
 
-
-
     /// <summary>
     /// reference to the maze rotator to enable and disable it
     /// </summary>
@@ -59,6 +57,7 @@ public class MazeSpawner : MonoBehaviour
         _mazeAssetReference.ReleaseAsset();
 
     }
+
     /// <summary>
     /// calls after trying to load the addressable asset
     /// </summary>
@@ -115,8 +114,6 @@ public class MazeSpawner : MonoBehaviour
     //            iOnSpawnDone?.Invoke(_mazeRotator);
     //        }
     //    }; 
-
-
 
     //}
 

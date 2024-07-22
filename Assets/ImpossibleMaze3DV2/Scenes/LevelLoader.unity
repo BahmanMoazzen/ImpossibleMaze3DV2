@@ -1055,8 +1055,6 @@ MonoBehaviour:
   _inputs:
   - {fileID: 741818597}
   - {fileID: 741818599}
-  _levelToLoad: {fileID: 0}
-  _ball: {fileID: 0}
   _cameraManager: {fileID: 0}
 --- !u!4 &1933288670
 Transform:
