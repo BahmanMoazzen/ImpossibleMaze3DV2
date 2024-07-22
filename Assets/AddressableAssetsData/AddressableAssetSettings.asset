@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 8ffeab5f4040614488151365ca309e4c
   m_currentHash:
     serializedVersion: 2
-    Hash: 09228b22c3150d77cdd3133b9b61430f
+    Hash: bec23298858f5f42af47543cc543bd0f
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -47,6 +47,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 681f18e26d695024db6b902d8d917e2e, type: 2}
   - {fileID: 11400000, guid: 5fbca4c143334eb488e13a1460855a96, type: 2}
   - {fileID: 11400000, guid: eb7f16d90df12494cbb297b4c418d748, type: 2}
+  - {fileID: 11400000, guid: 4f2c0f5d54899ba46a799bd709e71cad, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1
@@ -90,6 +91,7 @@ MonoBehaviour:
     - default
     - Ball
     - Level
+    - Sprites
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: a0a9c563ac98b214ca7118fe4a5035aa, type: 2}

@@ -114,7 +114,7 @@ public class GameSettingInfo : ScriptableObject
         get
         {
 
-            return AllBalls[currentGameLevel];
+            return AllBalls[CurrentBall];
         }
     }
     public LevelInfo[] AllLevels;
