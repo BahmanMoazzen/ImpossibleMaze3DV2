@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,8 +11,10 @@ public class TitleScreenManager : MonoBehaviour
     [SerializeField] Text _startButtonText;
     [SerializeField] Text _ballNameText;
     [SerializeField] Image _logoImage;
+    [SerializeField] Image _startButtonImage;
     [SerializeField] Transform _startButtonPlace;
     [SerializeField] AssetReferenceSprite _logoAssetReference;
+    [SerializeField] AssetReferenceSprite _startButtonAssetReference;
 
     bool IsFirstTime
     {
@@ -28,12 +31,21 @@ public class TitleScreenManager : MonoBehaviour
     }
     void Start()
     {
-        _logoAssetReference.LoadAssetAsync<Sprite>().Completed += TitleScreenManager_Completed;
+        _logoAssetReference.LoadAssetAsync<Sprite>().Completed += logoAssetReference_Completed;
+        _startButtonAssetReference.LoadAssetAsync<Sprite>().Completed += startButtonAssetReference_Completed;
         BallSpawner._Instance._SpawnBall(GameSettingInfo.Instance.CurrentBallInfo.BallMesh, _startButtonPlace, true);
         _ballNameText.text = GameSettingInfo.Instance.CurrentBallInfo.BallName;
     }
 
-    private void TitleScreenManager_Completed(UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<Sprite> iAsyncResult)
+    private void startButtonAssetReference_Completed(UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<Sprite> iAsyncResult)
+    {
+        if(iAsyncResult.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+        {
+            _startButtonImage.sprite = iAsyncResult.Result;
+        }
+    }
+
+    private void logoAssetReference_Completed(UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<Sprite> iAsyncResult)
     {
         if (iAsyncResult.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
         {
@@ -45,5 +57,11 @@ public class TitleScreenManager : MonoBehaviour
     {
         IsFirstTime = false;
         BAHMANLoadingManager._INSTANCE._LoadScene(AllScenes.GameScene);
+    }
+
+    private void OnDestroy()
+    {
+        _logoAssetReference.ReleaseAsset();
+        _startButtonAssetReference.ReleaseAsset();
     }
 }

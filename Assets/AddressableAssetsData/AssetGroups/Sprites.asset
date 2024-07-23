@@ -23,6 +23,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - Sprites
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 05c40b0f9a0f3894c95b27ef8586f54d
+    m_Address: Assets/ImpossibleMaze3DV2/UI
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 66316f542c8ce6e4f9c7bec152a69fa5, type: 2}
   m_SchemaSet:
