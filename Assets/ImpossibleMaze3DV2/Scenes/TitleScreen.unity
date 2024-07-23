@@ -758,7 +758,7 @@ MonoBehaviour:
     m_EditorAssetChanged: 1
   _startButtonAssetReference:
     m_AssetGUID: d6e5b428f67cf8f448c18bfcf786603d
-    m_SubObjectName: squareRed_0
+    m_SubObjectName: squareRed
     m_SubObjectType: UnityEngine.Sprite, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
     m_EditorAssetChanged: 1
