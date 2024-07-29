@@ -28,7 +28,7 @@ public class BallSpawner : MonoBehaviour
 
     UnityAction<GameObject> _completeAction;
 
-    Vector3 _spawnOffset = new Vector3(0, 1, 0);
+    Vector3 _spawnOffset = new Vector3(0, 2, 0);
 
     private void Awake()
     {

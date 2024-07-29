@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
 
     Transform _startTransform;
     Transform _endTransform;
-
+    GameObject _ballObject;
 
 
     private void Awake()
@@ -52,8 +52,9 @@ public class GameManager : MonoBehaviour
         // getting start and end Transform
         _startTransform = GameObject.Find("Start").transform;
         _endTransform = GameObject.Find("End").transform;
-
         
+        // spawn ball
+        BallSpawner._Instance._SpawnBall(GameSettingInfo.Instance.CurrentBallInfo.BallMesh, _startTransform, false, true, _spawnBallCompleted);
 
 
 
@@ -62,15 +63,15 @@ public class GameManager : MonoBehaviour
 
     void _spawnBallCompleted(GameObject iBall)
     {
-        BallPosition._Instance._SetBall(iBall.transform);
+        _ballObject = iBall;
+        _ballObject.SetActive(false);
+        BallPosition._Instance._SetBall(_ballObject.transform);
         // targeting all cameras to the ball
-        _cameraManager._SetupCameras(iBall.transform, BallPosition._Instance.transform,_startTransform);
+        _cameraManager._SetupCameras(_ballObject.transform, BallPosition._Instance.transform,_startTransform);
     }
     public void _LoadBall()
     {
-        // spawn ball
-        BallSpawner._Instance._SpawnBall(GameSettingInfo.Instance.CurrentBallInfo.BallMesh, _startTransform, false, true, _spawnBallCompleted);
-
+        _ballObject.SetActive(true);    
     }
     //public void _ChangeStat(GameStats iNewStat)
     //{
