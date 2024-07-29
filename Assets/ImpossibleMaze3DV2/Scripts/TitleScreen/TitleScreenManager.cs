@@ -33,13 +33,13 @@ public class TitleScreenManager : MonoBehaviour
     {
         _logoAssetReference.LoadAssetAsync<Sprite>().Completed += logoAssetReference_Completed;
         _startButtonAssetReference.LoadAssetAsync<Sprite>().Completed += startButtonAssetReference_Completed;
-        BallSpawner._Instance._SpawnBall(GameSettingInfo.Instance.CurrentBallInfo.BallMesh, _startButtonPlace, true);
+        BallSpawner._Instance._SpawnBall(GameSettingInfo.Instance.CurrentBallInfo.BallMesh, _startButtonPlace, true, false, null);
         _ballNameText.text = GameSettingInfo.Instance.CurrentBallInfo.BallName;
     }
 
     private void startButtonAssetReference_Completed(UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<Sprite> iAsyncResult)
     {
-        if(iAsyncResult.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+        if (iAsyncResult.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
         {
             _startButtonImage.sprite = iAsyncResult.Result;
         }

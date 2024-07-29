@@ -24,6 +24,11 @@ public class BallSpawner : MonoBehaviour
     AssetReferenceGameObject _ballAssetReference;
 
     bool _attachRotator;
+    bool _attachRigidbody;
+
+    UnityAction<GameObject> _completeAction;
+
+    Vector3 _spawnOffset = new Vector3(0, 1, 0);
 
     private void Awake()
     {
@@ -36,11 +41,13 @@ public class BallSpawner : MonoBehaviour
     /// public method to be called from other codes to instantiate a level
     /// </summary>
     /// <param name="iMaze">the prefab of the level. all the components will be set up automatically</param>
-    public void _SpawnBall(AssetReferenceGameObject iBall, Transform iBallLocation,bool iAttachRotator)
+    public void _SpawnBall(AssetReferenceGameObject iBall, Transform iBallLocation, bool iAttachRotator, bool iAttachRigidbody, UnityAction<GameObject> iCompleteAction)
     {
         _ballAssetReference = iBall;
         _spawnLocation = iBallLocation;
         _attachRotator = iAttachRotator;
+        _completeAction = iCompleteAction;
+        _attachRigidbody = iAttachRigidbody;
         _ballAssetReference.LoadAssetAsync<GameObject>().Completed += BallSpawner_Completed;
         //StartCoroutine(startSpawn(iMaze,iOnSpawnDone));
 
@@ -58,11 +65,17 @@ public class BallSpawner : MonoBehaviour
     private void BallSpawner_Completed(AsyncOperationHandle<GameObject> iAsyncResult)
     {
         GameObject newBall =
-        Instantiate(iAsyncResult.Result, _spawnLocation.position, Quaternion.identity);
+        Instantiate(iAsyncResult.Result, _spawnLocation.position + _spawnOffset, Quaternion.identity);
+        if (_attachRigidbody)
+        {
+            newBall.AddComponent<Rigidbody>().mass = 100;
+        }
         if (_attachRotator)
         {
             newBall.AddComponent<BallDisplayRotator>()._SetRotation(Vector3.one * DEFAULT_ROTATION_SPEED);
         }
+
+        _completeAction?.Invoke(newBall);
 
     }
     private void OnDestroy()

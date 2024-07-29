@@ -372,11 +372,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.20000002
   m_Center: {x: 0, y: 0, z: 0}
---- !u!4 &224823731 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6901931514750395246, guid: 49784c3ff447a954f9ea53ec0ffa5201, type: 3}
-  m_PrefabInstance: {fileID: 1534334736}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &245807392
 GameObject:
   m_ObjectHideFlags: 0
@@ -1281,7 +1276,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ddf33369d56fbc44950718c5925f612, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _ballTransform: {fileID: 224823731}
 --- !u!4 &1262850399
 Transform:
   m_ObjectHideFlags: 0
@@ -1602,6 +1596,10 @@ PrefabInstance:
     - target: {fileID: 6089788677816662484, guid: 49784c3ff447a954f9ea53ec0ffa5201, type: 3}
       propertyPath: m_Name
       value: 8ball
+      objectReference: {fileID: 0}
+    - target: {fileID: 6089788677816662484, guid: 49784c3ff447a954f9ea53ec0ffa5201, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6901931514750395246, guid: 49784c3ff447a954f9ea53ec0ffa5201, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2272,6 +2270,7 @@ GameObject:
   - component: {fileID: 1980141989}
   - component: {fileID: 1980141990}
   - component: {fileID: 1980141991}
+  - component: {fileID: 1980141992}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -2349,6 +2348,18 @@ MonoBehaviour:
   - {fileID: 1980141989}
   - {fileID: 1980141987}
   _cameraManager: {fileID: 245807393}
+--- !u!114 &1980141992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1980141986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 527c7f6b68d2f29489176f61574cc489, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2019746497
 GameObject:
   m_ObjectHideFlags: 0

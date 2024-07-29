@@ -4,11 +4,36 @@ using UnityEngine;
 
 public class BallPosition : MonoBehaviour
 {
-    [SerializeField] Transform _ballTransform;
+    public static BallPosition _Instance;
 
-    // Update is called once per frame
-    void Update()
+    Transform _ballTransform;
+
+
+    private void Awake()
     {
-        transform.position = _ballTransform.position;
+        if (_Instance == null)
+        {
+            _Instance = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
     }
+
+    void FixedUpdate()
+    {
+        if (_ballTransform != null)
+        {
+            transform.position = _ballTransform.position;
+        }
+
+    }
+
+    public void _SetBall(Transform iBallTransform)
+    {
+        _ballTransform = iBallTransform;
+    }
+
+
 }
