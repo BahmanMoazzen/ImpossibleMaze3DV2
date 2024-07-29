@@ -8,11 +8,14 @@ using UnityEngine.UI;
 public class TitleScreenManager : MonoBehaviour
 {
     const string START_BUTTON_SAVE_TAG = "TitleScreenSaveTag";
+    [Header("UI Elements")]
     [SerializeField] Text _startButtonText;
     [SerializeField] Text _ballNameText;
     [SerializeField] Image _logoImage;
     [SerializeField] Image _startButtonImage;
+    [Header("Scene Placeholder")]
     [SerializeField] Transform _startButtonPlace;
+    [Header("Assets To Load")]
     [SerializeField] AssetReferenceSprite _logoAssetReference;
     [SerializeField] AssetReferenceSprite _startButtonAssetReference;
 

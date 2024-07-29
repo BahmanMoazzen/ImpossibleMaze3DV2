@@ -22,6 +22,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameStatAbstract[] _gameStats;
     int _currentGameStat = 0;
 
+    Transform _startTransform;
+    Transform _endTransform;
+
 
 
     private void Awake()
@@ -46,9 +49,11 @@ public class GameManager : MonoBehaviour
         foreach (var inp in _inputs)
             inp._Setup(iMazeRotator);
 
-        // spawn ball
-        BallSpawner._Instance._SpawnBall(GameSettingInfo.Instance.CurrentBallInfo.BallMesh, GameObject.Find("Start").transform, false, true, _spawnBallCompleted);
+        // getting start and end Transform
+        _startTransform = GameObject.Find("Start").transform;
+        _endTransform = GameObject.Find("End").transform;
 
+        
 
 
 
@@ -59,9 +64,14 @@ public class GameManager : MonoBehaviour
     {
         BallPosition._Instance._SetBall(iBall.transform);
         // targeting all cameras to the ball
-        _cameraManager._SetupCameras(iBall.transform, BallPosition._Instance.transform);
+        _cameraManager._SetupCameras(iBall.transform, BallPosition._Instance.transform,_startTransform);
     }
+    public void _LoadBall()
+    {
+        // spawn ball
+        BallSpawner._Instance._SpawnBall(GameSettingInfo.Instance.CurrentBallInfo.BallMesh, _startTransform, false, true, _spawnBallCompleted);
 
+    }
     //public void _ChangeStat(GameStats iNewStat)
     //{
     //    _gameStats[_currentGameStat]._Ended();

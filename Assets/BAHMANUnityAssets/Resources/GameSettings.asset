@@ -18,7 +18,7 @@ MonoBehaviour:
   IsGameWon: 0
   ThisRunScore: 0
   currentGameLevel: 0
-  currentBall: 2
+  currentBall: 0
   AllLevels:
   - {fileID: 11400000, guid: 597f303b739c28646adf2a6338ea54d9, type: 2}
   - {fileID: 11400000, guid: 754dfbf8e41fe62418d1c598f147de18, type: 2}
