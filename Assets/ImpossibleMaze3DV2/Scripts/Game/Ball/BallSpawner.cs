@@ -1,8 +1,6 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-
 using UnityEngine.Events;
 using System;
 
@@ -29,6 +27,7 @@ public class BallSpawner : MonoBehaviour
     UnityAction<GameObject> _completeAction;
 
     Vector3 _spawnOffset = new Vector3(0, 2, 0);
+    GameObject _ballGameObject;
 
     private void Awake()
     {
@@ -54,6 +53,9 @@ public class BallSpawner : MonoBehaviour
     }
     public void _UnloadBall()
     {
+        /// Destroy the ball
+        Destroy(_ballGameObject);
+
         /// releasing the maze asset
         _ballAssetReference.ReleaseAsset();
 
@@ -74,8 +76,8 @@ public class BallSpawner : MonoBehaviour
         {
             newBall.AddComponent<BallDisplayRotator>()._SetRotation(Vector3.one * DEFAULT_ROTATION_SPEED);
         }
-
-        _completeAction?.Invoke(newBall);
+        _ballGameObject = newBall;
+        _completeAction?.Invoke(_ballGameObject);
 
     }
     private void OnDestroy()

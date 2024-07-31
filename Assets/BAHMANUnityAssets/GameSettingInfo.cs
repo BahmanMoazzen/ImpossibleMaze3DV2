@@ -69,7 +69,7 @@ public class GameSettingInfo : ScriptableObject
     }
 
 
-    const string GameLevelSaveTag= "GameLevelSaveTag";
+    const string GameLevelSaveTag = "GameLevelSaveTag";
 
 
     public bool IsGameWon;
@@ -116,6 +116,20 @@ public class GameSettingInfo : ScriptableObject
 
             return AllBalls[CurrentBall];
         }
+    }
+    public void NextBall(int iDirection)
+    {
+        int cBall = CurrentBall;
+        cBall += iDirection;
+        if (cBall < 0)
+        {
+            cBall = AllBalls.Length - 1;
+        }
+        else if (cBall >= AllBalls.Length)
+        {
+            cBall = 0;
+        }
+        CurrentBall= cBall;
     }
     public LevelInfo[] AllLevels;
     public BallInfo[] AllBalls;

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     /// <summary>
@@ -25,6 +25,9 @@ public class GameManager : MonoBehaviour
     Transform _startTransform;
     Transform _endTransform;
     GameObject _ballObject;
+    [SerializeField] Text _ballNameText;
+    [SerializeField] Text _levelNameText;
+    [SerializeField] GameObject _loadingImage;
 
 
     private void Awake()
@@ -37,8 +40,8 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         //_gameStats[_currentGameStat]._Started();
-
         MazeSpawner._Instance._SpawnMaze(GameSettingInfo.Instance.CurrentLevelSkeletone.LevelSkeletone, MazeSpawner_OnLevelSpawned);
+        _levelNameText.text = GameSettingInfo.Instance.CurrentLevelSkeletone.LevelName;
 
     }
 
@@ -52,26 +55,24 @@ public class GameManager : MonoBehaviour
         // getting start and end Transform
         _startTransform = GameObject.Find("Start").transform;
         _endTransform = GameObject.Find("End").transform;
-        
+
         // spawn ball
         BallSpawner._Instance._SpawnBall(GameSettingInfo.Instance.CurrentBallInfo.BallMesh, _startTransform, false, true, _spawnBallCompleted);
-
-
-
-
+        _ballNameText.text = GameSettingInfo.Instance.CurrentBallInfo.BallName;
     }
-
     void _spawnBallCompleted(GameObject iBall)
     {
+        _loadingImage.SetActive(false);
         _ballObject = iBall;
-        _ballObject.SetActive(false);
+        //_ballObject.SetActive(false);
         BallPosition._Instance._SetBall(_ballObject.transform);
         // targeting all cameras to the ball
-        _cameraManager._SetupCameras(_ballObject.transform, BallPosition._Instance.transform,_startTransform);
+        _cameraManager._SetupCameras(_ballObject.transform, BallPosition._Instance.transform, _startTransform);
+
     }
     public void _LoadBall()
     {
-        _ballObject.SetActive(true);    
+        _ballObject.SetActive(true);
     }
     //public void _ChangeStat(GameStats iNewStat)
     //{
@@ -79,6 +80,18 @@ public class GameManager : MonoBehaviour
     //    _currentGameStat =((int)iNewStat);
     //    _gameStats[_currentGameStat]._Started();
     //}
+
+    public void _NextBall(int iDirection)
+    {
+        BallSpawner._Instance._UnloadBall();
+        // go to next index based on direction
+        GameSettingInfo.Instance.NextBall(iDirection);
+        // spawn ball
+        _loadingImage.SetActive(true);
+        BallSpawner._Instance._SpawnBall(GameSettingInfo.Instance.CurrentBallInfo.BallMesh, _startTransform, false, true, _spawnBallCompleted);
+        _ballNameText.text = GameSettingInfo.Instance.CurrentBallInfo.BallName;
+        //_LoadBall();
+    }
 
     private void Update()
     {
