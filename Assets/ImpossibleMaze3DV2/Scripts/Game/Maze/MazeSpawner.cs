@@ -154,7 +154,7 @@ public class MazeSpawner : MonoBehaviour
     void _addMazeRotator()
     {
         _mazeRotator = _parentMaze.AddComponent<MazeRotator>();
-        _mazeRotator._SetupRotator(newLimit, DEFAULT_ROTATION_SPEED);
+        _mazeRotator._SetupRotator(InGameInfo.Instance.DefaultRotatorLimit, DEFAULT_ROTATION_SPEED);
         _DisableMazeRotator();
     }
 
@@ -172,20 +172,7 @@ public class MazeSpawner : MonoBehaviour
         mazeBody.useGravity = false;
     }
 
-    /// <summary>
-    /// the default rotation limit of the rotator
-    /// </summary>
-    MazeRotationLimit newLimit
-    {
-        get
-        {
-            return new MazeRotationLimit(
-            new RotationLimit(-15, 15),
-            new RotationLimit(0, 0),
-            new RotationLimit(-15, 15)
-            );
-        }
-    }
+    
 
     private void OnDestroy()
     {

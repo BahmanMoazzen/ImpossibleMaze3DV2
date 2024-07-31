@@ -21,7 +21,6 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] GameStatAbstract[] _gameStats;
     int _currentGameStat = 0;
-
     Transform _startTransform;
     //Transform _endTransform;
     GameObject _ballObject;
@@ -29,14 +28,28 @@ public class GameManager : MonoBehaviour
     [SerializeField] Text _levelNameText;
     [SerializeField] GameObject _loadingImage;
 
+    [SerializeField] Slider _xSlider;
+    [SerializeField] Slider _zSlider;
+
 
     private void Awake()
     {
-
         Time.timeScale = _gameSpeed;
-
-
+        InGameInfo.Instance.OnGameFinished += _gameInfo_OnGameFinished;
+        InGameInfo.Instance.OnMazeRotated += _gameInfo_OnMazeRotated;
     }
+
+    private void _gameInfo_OnMazeRotated(Vector3 iRotation)
+    {
+        _xSlider.value = iRotation.x;
+        _zSlider.value = -iRotation.z;
+    }
+
+    private void _gameInfo_OnGameFinished()
+    {
+        Debug.Log("Game Finished");
+    }
+
     private void Start()
     {
         //_gameStats[_currentGameStat]._Started();

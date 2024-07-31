@@ -52,6 +52,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ball9
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ce2fcdc8b41ac6d4b84888fbedd1011d, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

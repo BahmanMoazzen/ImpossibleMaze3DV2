@@ -1,9 +1,7 @@
-using System;
 using UnityEngine;
 
 public class MazeRotator : MonoBehaviour
 {
-    
     /// <summary>
     /// Maximum rotation of the maze
     /// </summary>
@@ -16,12 +14,10 @@ public class MazeRotator : MonoBehaviour
     /// the speed in wich the rotation should be handled
     /// </summary>
     [SerializeField] float _rotationSpeed;
-
     private void Awake()
     {
-        
         _currentRotation = transform.rotation.eulerAngles;
-        Debug.Log(_currentRotation.x);
+        //Debug.Log(_currentRotation.x);
     }
     public void _RotateMaze(Vector3 iRotation)
     {
@@ -29,6 +25,7 @@ public class MazeRotator : MonoBehaviour
         _currentRotation += iRotation;
         _checkRotationBounds();
         transform.rotation = Quaternion.Euler(_currentRotation);
+        InGameInfo.Instance.MazeRotation =_currentRotation;
     }
     public void _SetRotationLimit(MazeRotationLimit iLimits)
     {
@@ -66,36 +63,6 @@ public class MazeRotator : MonoBehaviour
         {
             _currentRotation.y = _maxRotation.Ylimit.MinRotation;
         }
-
-    }
-
-
-
-}
-[Serializable]
-public struct RotationLimit
-{
-    public float MinRotation;
-    public float MaxRotation;
-    public RotationLimit(float iMinRotation, float iMaxRotation)
-    {
-        MinRotation = iMinRotation;
-        MaxRotation = iMaxRotation;
     }
 }
-[Serializable]
-public struct MazeRotationLimit
-{
-    //public enum RotationAxis { X, Y, Z };
-    public RotationLimit Xlimit;
-    public RotationLimit Ylimit;
-    public RotationLimit Zlimit;
-    public MazeRotationLimit(RotationLimit iXLimit, RotationLimit iYLimit, RotationLimit iZLimit)
-    {
-        Xlimit = iXLimit;
-        Ylimit = iYLimit;
-        Zlimit = iZLimit;
-    }
 
-
-}
