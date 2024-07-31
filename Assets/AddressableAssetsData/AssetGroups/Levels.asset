@@ -263,6 +263,18 @@ MonoBehaviour:
     m_SerializedLabels:
     - Level
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4ec36f4c92511834fbc756f00615d9c3
+    m_Address: Assets/ImpossibleMaze3DV2/Prefabs/EndPointParticle.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - InGameDebries
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 66e84a743e92ef14ea18e2a6a8bb396a
+    m_Address: Assets/ImpossibleMaze3DV2/Prefabs/EndPointWithParticle.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - InGameDebries
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 66316f542c8ce6e4f9c7bec152a69fa5, type: 2}
   m_SchemaSet:

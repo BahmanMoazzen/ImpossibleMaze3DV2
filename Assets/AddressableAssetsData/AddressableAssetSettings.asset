@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 8ffeab5f4040614488151365ca309e4c
   m_currentHash:
     serializedVersion: 2
-    Hash: bec23298858f5f42af47543cc543bd0f
+    Hash: f90dbde001807f9aeb74aef28ae28de9
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -92,6 +92,7 @@ MonoBehaviour:
     - Ball
     - Level
     - Sprites
+    - InGameDebries
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: a0a9c563ac98b214ca7118fe4a5035aa, type: 2}

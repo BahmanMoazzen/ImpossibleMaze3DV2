@@ -24,9 +24,11 @@ public class MazeSpawner : MonoBehaviour
     /// </summary>
     MazeRotator _mazeRotator;
 
-    UnityAction<MazeRotator> _actionAfterDone;
+    UnityAction<MazeRotator, Transform> _actionAfterDone;
 
     AssetReferenceGameObject _mazeAssetReference;
+    [SerializeField]
+    AssetReferenceGameObject _endPointReference;
 
     GameObject _parentMaze;
 
@@ -41,7 +43,7 @@ public class MazeSpawner : MonoBehaviour
     /// public method to be called from other codes to instantiate a level
     /// </summary>
     /// <param name="iMaze">the prefab of the level. all the components will be set up automatically</param>
-    public void _SpawnMaze(AssetReferenceGameObject iMaze, UnityAction<MazeRotator> iOnSpawnDone)
+    public void _SpawnMaze(AssetReferenceGameObject iMaze, UnityAction<MazeRotator, Transform> iOnSpawnDone)
     {
         _actionAfterDone = iOnSpawnDone;
         _mazeAssetReference = iMaze;
@@ -78,9 +80,20 @@ public class MazeSpawner : MonoBehaviour
         /// adding rotator
         _addMazeRotator();
 
+        // load end point
+        _endPointReference.LoadAssetAsync<GameObject>().Completed += MazeSpawner_EndPointLoaded; ;
 
         /// job done event
-        _actionAfterDone?.Invoke(_mazeRotator);
+        _actionAfterDone?.Invoke(_mazeRotator, GameObject.Find("Start").transform);
+    }
+
+    private void MazeSpawner_EndPointLoaded(AsyncOperationHandle<GameObject> iAsyncTask)
+    {
+        if (iAsyncTask.Status == AsyncOperationStatus.Succeeded)
+        {
+            Instantiate(iAsyncTask.Result, GameObject.Find("End").transform);
+        }
+
     }
 
     /// <summary>

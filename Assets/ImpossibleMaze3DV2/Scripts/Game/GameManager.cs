@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
     int _currentGameStat = 0;
 
     Transform _startTransform;
-    Transform _endTransform;
+    //Transform _endTransform;
     GameObject _ballObject;
     [SerializeField] Text _ballNameText;
     [SerializeField] Text _levelNameText;
@@ -46,15 +46,16 @@ public class GameManager : MonoBehaviour
     }
 
 
-    private void MazeSpawner_OnLevelSpawned(MazeRotator iMazeRotator)
+    private void MazeSpawner_OnLevelSpawned(MazeRotator iMazeRotator,Transform iStartTransform)
     {
+        _startTransform = iStartTransform;
         // setting up all the input controllers available
         foreach (var inp in _inputs)
             inp._Setup(iMazeRotator);
 
         // getting start and end Transform
-        _startTransform = GameObject.Find("Start").transform;
-        _endTransform = GameObject.Find("End").transform;
+        //_startTransform = GameObject.Find("Start").transform;
+        //_endTransform = GameObject.Find("End").transform;
 
         // spawn ball
         BallSpawner._Instance._SpawnBall(GameSettingInfo.Instance.CurrentBallInfo.BallMesh, _startTransform, false, true, _spawnBallCompleted);
