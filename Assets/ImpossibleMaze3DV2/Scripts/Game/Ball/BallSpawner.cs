@@ -66,17 +66,21 @@ public class BallSpawner : MonoBehaviour
     /// <param name="iAsyncResult">the result of the operation</param>
     private void BallSpawner_Completed(AsyncOperationHandle<GameObject> iAsyncResult)
     {
-        GameObject newBall =
+        _ballGameObject =
         Instantiate(iAsyncResult.Result, _spawnLocation.position + _spawnOffset, Quaternion.identity);
         if (_attachRigidbody)
         {
-            newBall.AddComponent<Rigidbody>().mass = 100;
+            _ballGameObject.AddComponent<Rigidbody>().mass = 100;
         }
         if (_attachRotator)
         {
-            newBall.AddComponent<BallDisplayRotator>()._SetRotation(Vector3.one * DEFAULT_ROTATION_SPEED);
+            _ballGameObject.AddComponent<BallDisplayRotator>()._SetRotation(Vector3.one * DEFAULT_ROTATION_SPEED);
         }
-        _ballGameObject = newBall;
+
+        if (InGameInfo.Instance != null)
+        {
+            InGameInfo.Instance.SetBallLoaded(_ballGameObject);
+        }
         _completeAction?.Invoke(_ballGameObject);
 
     }

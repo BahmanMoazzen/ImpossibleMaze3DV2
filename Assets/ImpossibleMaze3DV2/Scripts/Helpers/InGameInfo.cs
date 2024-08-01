@@ -11,22 +11,41 @@ public class InGameInfo : ScriptableObject
     {
         get
         {
-            if(currentIngameinfo == null)
+            if (currentIngameinfo == null)
             {
                 currentIngameinfo = Resources.Load<InGameInfo>("InGame");
             }
             return currentIngameinfo;
         }
     }
-    public event UnityAction OnGameFinished;
+    public event UnityAction OnTimeUp;
+    public event UnityAction OnGameWon;
+    public event UnityAction OnBallDroped;
+    public event UnityAction OnBallLoaded;
+    public event UnityAction OnLevelLoaded;
     public event UnityAction<Vector3> OnMazeRotated;
-    public event UnityAction<float,float> OnMazeRotatedSlider;
-    public bool IsGameFinished
+    public bool IsGameWon
     {
         set
         {
             if (value)
-                OnGameFinished?.Invoke();
+                OnGameWon?.Invoke();
+        }
+    }
+    public bool IsBallDroped
+    {
+        set
+        {
+            if (value)
+                OnBallDroped?.Invoke();
+        }
+    }
+    public bool IsTimeUp
+    {
+        set
+        {
+            if (value)
+                OnTimeUp?.Invoke();
         }
     }
     public Vector3 MazeRotation
@@ -34,9 +53,30 @@ public class InGameInfo : ScriptableObject
         set
         {
             OnMazeRotated?.Invoke(value);
-            //float xSlider = value.x/DefaultRotatorLimit.Xlimit.;
         }
     }
+
+    public Transform StartPointTransform;
+    public Transform EndPointTransform;
+    public MazeRotator GameMazeRotator;
+    public GameObject GameBall;
+
+    public void SetGameMaze(Transform iStartTransform, Transform iEndTransform, MazeRotator iMazeRotator)
+    {
+        StartPointTransform = iStartTransform;
+        EndPointTransform = iEndTransform;
+        GameMazeRotator = iMazeRotator;
+        OnLevelLoaded?.Invoke();
+    }
+
+    public void SetBallLoaded(GameObject iBallObject)
+    {
+        GameBall = iBallObject;
+        OnBallLoaded?.Invoke();
+    }
+
+
+
 
     /// <summary>
     /// the default rotation limit of the rotator

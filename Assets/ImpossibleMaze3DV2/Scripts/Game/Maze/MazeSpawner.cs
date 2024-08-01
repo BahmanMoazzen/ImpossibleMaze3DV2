@@ -11,7 +11,7 @@ public class MazeSpawner : MonoBehaviour
     /// <summary>
     /// the default rotation speed of the game
     /// </summary>
-    const float DEFAULT_ROTATION_SPEED = 50f;
+    const float DEFAULT_ROTATION_SPEED = 30f;
     const float DEFAULT_MAZE_MASS = 1000f;
 
     /// <summary>
@@ -79,6 +79,8 @@ public class MazeSpawner : MonoBehaviour
         _addRigidBody();
         /// adding rotator
         _addMazeRotator();
+
+        InGameInfo.Instance.SetGameMaze(GameObject.Find("Start").transform, GameObject.Find("End").transform, _mazeRotator);
 
         // load end point
         _endPointReference.LoadAssetAsync<GameObject>().Completed += MazeSpawner_EndPointLoaded; ;

@@ -9,7 +9,7 @@ public class EndPointController : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            InGameInfo.Instance.IsGameFinished = true;
+            InGameInfo.Instance.IsGameWon = true;
         }
     }
 }

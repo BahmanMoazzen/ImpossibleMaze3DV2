@@ -35,10 +35,18 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Time.timeScale = _gameSpeed;
-        InGameInfo.Instance.OnGameFinished += _gameInfo_OnGameFinished;
+        
+    }
+    private void OnEnable()
+    {
+        InGameInfo.Instance.OnGameWon += _gameInfo_OnGameFinished;
         InGameInfo.Instance.OnMazeRotated += _gameInfo_OnMazeRotated;
     }
-
+    private void OnDisable()
+    {
+        InGameInfo.Instance.OnGameWon -= _gameInfo_OnGameFinished;
+        InGameInfo.Instance.OnMazeRotated -= _gameInfo_OnMazeRotated;
+    }
     private void _gameInfo_OnMazeRotated(Vector3 iRotation)
     {
         _xSlider.value = iRotation.x;
