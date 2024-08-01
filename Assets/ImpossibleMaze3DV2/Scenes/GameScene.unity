@@ -3534,8 +3534,6 @@ MonoBehaviour:
   _ballNameText: {fileID: 507040722}
   _levelNameText: {fileID: 1715529244}
   _loadingImage: {fileID: 2028767560}
-  _xSlider: {fileID: 1474747932}
-  _zSlider: {fileID: 1606954178}
 --- !u!114 &1980141992
 MonoBehaviour:
   m_ObjectHideFlags: 0
