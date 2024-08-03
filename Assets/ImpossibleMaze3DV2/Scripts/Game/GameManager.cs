@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
@@ -31,22 +32,40 @@ public class GameManager : MonoBehaviour
     [SerializeField] Slider _xSlider;
     [SerializeField] Slider _zSlider;
 
+    [SerializeField] UnityEvent OnBallDropped;
+    [SerializeField] UnityEvent OnGameFinished;
+    [SerializeField] UnityEvent OnTimeUp;
+
 
     private void Awake()
     {
         Time.timeScale = _gameSpeed;
         
     }
-    private void OnEnable()
-    {
-        InGameInfo.Instance.OnGameWon += _gameInfo_OnGameFinished;
-        InGameInfo.Instance.OnMazeRotated += _gameInfo_OnMazeRotated;
-    }
     private void OnDisable()
     {
         InGameInfo.Instance.OnGameWon -= _gameInfo_OnGameFinished;
         InGameInfo.Instance.OnMazeRotated -= _gameInfo_OnMazeRotated;
+        InGameInfo.Instance.OnBallDroped -= _gameInfo_OnBallDroped;
     }
+    private void OnEnable()
+    {
+        InGameInfo.Instance.OnGameWon += _gameInfo_OnGameFinished;
+        InGameInfo.Instance.OnMazeRotated += _gameInfo_OnMazeRotated;
+        InGameInfo.Instance.OnBallDroped += _gameInfo_OnBallDroped;
+    }
+
+    private void _gameInfo_OnBallDroped()
+    {
+        OnBallDropped?.Invoke();
+        
+    }
+
+    public void _ReloadScene()
+    {
+        BAHMANLoadingManager._INSTANCE._LoadScene(AllScenes.GameScene);
+    }
+
     private void _gameInfo_OnMazeRotated(Vector3 iRotation)
     {
         _xSlider.value = iRotation.x;
@@ -55,7 +74,11 @@ public class GameManager : MonoBehaviour
 
     private void _gameInfo_OnGameFinished()
     {
+        GameSettingInfo.Instance.CurrentGameLevel++;
         Debug.Log("Game Finished");
+        OnGameFinished?.Invoke();
+        
+
     }
 
     private void Start()
@@ -65,8 +88,6 @@ public class GameManager : MonoBehaviour
         _levelNameText.text = GameSettingInfo.Instance.CurrentLevelSkeletone.LevelName;
 
     }
-
-
     private void MazeSpawner_OnLevelSpawned(MazeRotator iMazeRotator,Transform iStartTransform)
     {
         _startTransform = iStartTransform;
