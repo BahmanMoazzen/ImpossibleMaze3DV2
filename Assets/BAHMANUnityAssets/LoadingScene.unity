@@ -209,7 +209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bf5f1411b3f4e44e86bc402eb9bdbd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _nextScene: 2
+  _nextScene: 1
 --- !u!4 &321880300
 Transform:
   m_ObjectHideFlags: 0
@@ -459,6 +459,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: BAHMANMusicBox
       objectReference: {fileID: 0}
+    - target: {fileID: 3393399636186304760, guid: 3e4287cfccfdaae48bf4ee236b4d48e6, type: 3}
+      propertyPath: _musicBoxSceneInfos.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3393399636186304760, guid: 3e4287cfccfdaae48bf4ee236b4d48e6, type: 3}
+      propertyPath: '_musicBoxSceneInfos.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 80ceafdec929e1540bafdd6b873e0df5, type: 2}
+    - target: {fileID: 3393399636186304760, guid: 3e4287cfccfdaae48bf4ee236b4d48e6, type: 3}
+      propertyPath: '_musicBoxSceneInfos.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 80ceafdec929e1540bafdd6b873e0df5, type: 2}
     - target: {fileID: 4403295534290484858, guid: 3e4287cfccfdaae48bf4ee236b4d48e6, type: 3}
       propertyPath: m_RootOrder
       value: 5
