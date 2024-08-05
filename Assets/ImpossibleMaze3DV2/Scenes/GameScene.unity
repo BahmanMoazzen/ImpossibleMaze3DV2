@@ -382,6 +382,12 @@ PlayableDirector:
     value: {fileID: 1783385339}
   - key: {fileID: -4382849967350610611, guid: 571c447f5d560654da9a2e55024ace48, type: 2}
     value: {fileID: 1159042214}
+  - key: {fileID: -2982288016653275434, guid: 571c447f5d560654da9a2e55024ace48, type: 2}
+    value: {fileID: 154762897}
+  - key: {fileID: 5874673403317452335, guid: 571c447f5d560654da9a2e55024ace48, type: 2}
+    value: {fileID: 1768851126}
+  - key: {fileID: 5783490629800033700, guid: 571c447f5d560654da9a2e55024ace48, type: 2}
+    value: {fileID: 85391681}
   m_ExposedReferences:
     m_References: []
 --- !u!1 &151618491
@@ -1329,7 +1335,7 @@ RectTransform:
   m_Father: {fileID: 2045160583}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1648,7 +1654,7 @@ RectTransform:
   m_Father: {fileID: 780054880}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 10}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1805,7 +1811,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.3331667, y: 0.27189395}
   m_AnchorMax: {x: 0.675, y: 0.31837124}
-  m_AnchoredPosition: {x: 0, y: -0.5479431}
+  m_AnchoredPosition: {x: 0, y: -0.54797363}
   m_SizeDelta: {x: -4, y: 1.0959015}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &539390531
@@ -1906,8 +1912,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1872160543}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2259,6 +2265,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2959785364665604005, guid: dcb65a078ba42254f8bdfdcc754bedc5, type: 3}
+      propertyPath: m_TimeSlicingMode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3375894493408935596, guid: dcb65a078ba42254f8bdfdcc754bedc5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -3076,8 +3086,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 339373209}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4364,6 +4374,12 @@ PlayableDirector:
     value: {fileID: 151618496}
   - key: {fileID: 3202817204360559860, guid: b1214149e98745947a6cc920d2c2f90f, type: 2}
     value: {fileID: 1783385339}
+  - key: {fileID: 2463035058757869289, guid: b1214149e98745947a6cc920d2c2f90f, type: 2}
+    value: {fileID: 154762897}
+  - key: {fileID: 1795523211561302465, guid: b1214149e98745947a6cc920d2c2f90f, type: 2}
+    value: {fileID: 1768851126}
+  - key: {fileID: -9055864330703325518, guid: b1214149e98745947a6cc920d2c2f90f, type: 2}
+    value: {fileID: 85391681}
   m_ExposedReferences:
     m_References: []
 --- !u!1 &1914270337

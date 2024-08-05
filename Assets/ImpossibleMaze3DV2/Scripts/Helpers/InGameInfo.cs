@@ -24,19 +24,23 @@ public class InGameInfo : ScriptableObject
     public event UnityAction OnBallLoaded;
     public event UnityAction OnLevelLoaded;
     public event UnityAction<Vector3> OnMazeRotated;
-    public bool IsGameWon
+
+
+    public bool LevelWon = false;
+    public bool IsLevelWon
     {
         set
         {
             if (value)
                 OnGameWon?.Invoke();
+            LevelWon = value;
         }
     }
     public bool IsBallDroped
     {
         set
         {
-            if (value)
+            if (value && !LevelWon)
                 OnBallDroped?.Invoke();
         }
     }
@@ -44,7 +48,7 @@ public class InGameInfo : ScriptableObject
     {
         set
         {
-            if (value)
+            if (value && !LevelWon)
                 OnTimeUp?.Invoke();
         }
     }

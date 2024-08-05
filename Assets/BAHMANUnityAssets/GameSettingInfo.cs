@@ -106,7 +106,7 @@ public class GameSettingInfo : ScriptableObject
         get
         {
 
-            return AllLevels[currentGameLevel];
+            return AllLevels[CurrentGameLevel];
         }
     }
     public BallInfo CurrentBallInfo
@@ -129,10 +129,18 @@ public class GameSettingInfo : ScriptableObject
         {
             cBall = 0;
         }
-        CurrentBall= cBall;
+        CurrentBall = cBall;
     }
     public LevelInfo[] AllLevels;
     public BallInfo[] AllBalls;
+
+    public bool IsGameEnded
+    {
+        get
+        {
+            return AllLevels.Length <= PlayerPrefs.GetInt(GameLevelSaveTag, currentGameLevel);
+        }
+    }
 
 }
 

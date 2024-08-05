@@ -9,7 +9,7 @@ public class BallSpawner : MonoBehaviour
     /// <summary>
     /// the default rotation speed of the game
     /// </summary>
-    const float DEFAULT_ROTATION_SPEED = 50f;
+    const float DEFAULT_ROTATION_SPEED = 1f;
 
     /// <summary>
     /// singletone porpuses

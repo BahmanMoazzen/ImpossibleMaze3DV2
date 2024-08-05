@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -40,7 +38,7 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Time.timeScale = _gameSpeed;
-        
+
     }
     private void OnDisable()
     {
@@ -58,7 +56,7 @@ public class GameManager : MonoBehaviour
     private void _gameInfo_OnBallDroped()
     {
         OnBallDropped?.Invoke();
-        
+
     }
 
     public void _ReloadScene()
@@ -77,18 +75,28 @@ public class GameManager : MonoBehaviour
         GameSettingInfo.Instance.CurrentGameLevel++;
         Debug.Log("Game Finished");
         OnGameFinished?.Invoke();
-        
+
 
     }
 
     private void Start()
     {
         //_gameStats[_currentGameStat]._Started();
-        MazeSpawner._Instance._SpawnMaze(GameSettingInfo.Instance.CurrentLevelSkeletone.LevelSkeletone, MazeSpawner_OnLevelSpawned);
-        _levelNameText.text = GameSettingInfo.Instance.CurrentLevelSkeletone.LevelName;
+        if(GameSettingInfo.Instance.IsGameEnded)
+        {
+            BAHMANLoadingManager._INSTANCE._LoadScene(AllScenes.AftermathScene);
+            Debug.Log("Game Finished");
+        }
+        else
+        {
+            InGameInfo.Instance.IsLevelWon = false;
+            MazeSpawner._Instance._SpawnMaze(GameSettingInfo.Instance.CurrentLevelSkeletone.LevelSkeletone, MazeSpawner_OnLevelSpawned);
+            _levelNameText.text = GameSettingInfo.Instance.CurrentLevelSkeletone.LevelName;
+        }
+        
 
     }
-    private void MazeSpawner_OnLevelSpawned(MazeRotator iMazeRotator,Transform iStartTransform)
+    private void MazeSpawner_OnLevelSpawned(MazeRotator iMazeRotator, Transform iStartTransform)
     {
         _startTransform = iStartTransform;
         // setting up all the input controllers available
