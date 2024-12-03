@@ -90,7 +90,10 @@ public class GameManager : MonoBehaviour
         else
         {
             InGameInfo.Instance.IsLevelWon = false;
-            MazeSpawner._Instance._SpawnMaze(GameSettingInfo.Instance.CurrentLevelSkeletone.LevelSkeletone, MazeSpawner_OnLevelSpawned);
+            MazeSpawner._Instance._SpawnMaze(
+                GameSettingInfo.Instance.CurrentLevelSkeletone.LevelSkeletone
+                , GameSettingInfo.Instance.CurrentLevelSkeletone.UseDefaultBoxCollider
+                , MazeSpawner_OnLevelSpawned);
             _levelNameText.text = GameSettingInfo.Instance.CurrentLevelSkeletone.LevelName;
         }
         

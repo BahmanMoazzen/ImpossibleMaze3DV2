@@ -8,6 +8,7 @@ public class LevelInfo : ScriptableObject
     public string LevelName;
     public AssetReferenceGameObject LevelSkeletone;
     public float LevelTime;
+    public bool UseDefaultBoxCollider = true;
     
 
 }

@@ -29,7 +29,7 @@ public class MazeSpawner : MonoBehaviour
     AssetReferenceGameObject _mazeAssetReference;
     [SerializeField]
     AssetReferenceGameObject _endPointReference;
-
+    bool _addDefaultCollider;
     GameObject _parentMaze;
 
     private void Awake()
@@ -43,11 +43,11 @@ public class MazeSpawner : MonoBehaviour
     /// public method to be called from other codes to instantiate a level
     /// </summary>
     /// <param name="iMaze">the prefab of the level. all the components will be set up automatically</param>
-    public void _SpawnMaze(AssetReferenceGameObject iMaze, UnityAction<MazeRotator, Transform> iOnSpawnDone)
+    public void _SpawnMaze(AssetReferenceGameObject iMaze, bool iAddDefaultCollider, UnityAction<MazeRotator, Transform> iOnSpawnDone)
     {
         _actionAfterDone = iOnSpawnDone;
         _mazeAssetReference = iMaze;
-
+        _addDefaultCollider = iAddDefaultCollider;
         _mazeAssetReference.LoadAssetAsync<GameObject>().Completed += MazeSpawner_Completed;
         //StartCoroutine(startSpawn(iMaze,iOnSpawnDone));
 
@@ -75,6 +75,12 @@ public class MazeSpawner : MonoBehaviour
         Instantiate(iAsyncResult.Result, _parentMaze.transform);
         /// adding mesh collider to the maze skletone
         mazeSkleton.AddComponent<MeshCollider>();
+        //if (_addDefaultCollider)
+        //{
+        //    BoxCollider bc = mazeSkleton.AddComponent<BoxCollider>();
+        //    bc.center = Vector3.zero;
+        //    bc.size = new Vector3(20, 20, 0);
+        //}
         /// adding rigidbody
         _addRigidBody();
         /// adding rotator
@@ -168,13 +174,13 @@ public class MazeSpawner : MonoBehaviour
     {
         Rigidbody mazeBody =
         _parentMaze.AddComponent<Rigidbody>();
-        mazeBody.angularDrag = mazeBody.drag = 0;
+        mazeBody.angularDamping = mazeBody.linearDamping = 0;
         mazeBody.isKinematic = true;
         mazeBody.mass = DEFAULT_MAZE_MASS;
         mazeBody.useGravity = false;
     }
 
-    
+
 
     private void OnDestroy()
     {
